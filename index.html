@@ -1,0 +1,1824 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>上门喂养小助手 | Pet Feeding Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #f5e6ff 0%, #fff5e6 100%);
+            min-height: 100vh;
+            padding-bottom: 2rem;
+        }
+        .card-shadow {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .input-focus:focus {
+            outline: none;
+            border-color: #d8b4fe;
+            box-shadow: 0 0 0 3px rgba(216, 180, 254, 0.1);
+        }
+        .checkbox-wrapper {
+            position: relative;
+        }
+        .checkbox-wrapper input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+        .checkbox-wrapper label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        .checkbox-custom {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #d1d5db;
+            border-radius: 4px;
+            margin-right: 10px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            background: white;
+        }
+        .checkbox-wrapper input[type="checkbox"]:checked + label .checkbox-custom {
+            background: #e9d5ff;
+            border-color: #a855f7;
+        }
+        .checkbox-wrapper input[type="checkbox"]:checked + label .checkbox-custom::after {
+            content: '✓';
+            color: #7c3aed;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .toggle-btn {
+            background: white;
+            border: 2px solid #d1d5db;
+            color: #374151;
+            transition: all 0.2s;
+            cursor: pointer;
+            user-select: none;
+        }
+        .toggle-btn.active {
+            background: #e9d5ff;
+            border-color: #a855f7;
+            color: #7c3aed;
+        }
+        .photo-preview {
+            width: 100%;
+            max-height: none;
+            height: auto;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+        .photo-preview-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border-radius: 12px;
+        }
+        .report-card {
+            background: linear-gradient(135deg, #fff9f0 0%, #fff5e6 100%);
+            border: 2px solid #d8b4fe;
+        }
+        .pet-input-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: flex-start;
+        }
+        .pet-input-wrapper {
+            flex: 1;
+        }
+        input, select, textarea {
+            max-width: 100%;
+        }
+        input[type="date"], input[type="time"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background-color: white;
+            min-height: 48px;
+        }
+        input[type="number"] {
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+            appearance: none;
+        }
+        .container-padding {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        .qr-container {
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e9d5ff;
+            border-top-color: #a855f7;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .feeding-type-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .feeding-type-row .checkbox-wrapper {
+            flex-shrink: 0;
+        }
+        .feeding-type-row input[type="text"] {
+            flex: 1;
+            min-width: 100px;
+            padding: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .small-photo-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            border-radius: 0.75rem;
+        }
+        .small-photo-preview {
+            width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+        }
+        /* 底部导航栏 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-around;
+            padding: 0.5rem 0;
+            padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+            z-index: 100;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            color: #9ca3af;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .nav-item.active {
+            color: #7c3aed;
+        }
+        .nav-item span {
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+        /* 历史记录卡片 */
+        .history-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .history-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        /* 模板卡片 */
+        .template-card {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .template-card:hover {
+            border-color: #a855f7;
+        }
+        .template-card.selected {
+            border-color: #a855f7;
+            background: #faf5ff;
+        }
+        body {
+            padding-bottom: 5rem;
+        }
+        /* 语言切换 */
+        .lang-switch {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 50;
+            background: white;
+            border-radius: 9999px;
+            padding: 0.25rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .lang-btn {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .lang-btn.active {
+            background: #7c3aed;
+            color: white;
+        }
+    </style>
+</head>
+<body class="container-padding">
+    <!-- 语言切换 -->
+    <div class="lang-switch">
+        <button class="lang-btn active" data-lang="zh" onclick="switchLanguage('zh')">中文</button>
+        <button class="lang-btn" data-lang="en" onclick="switchLanguage('en')">EN</button>
+    </div>
+
+    <!-- 加载中遮罩 -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="text-center">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p class="text-gray-600" data-i18n="loading">正在处理...</p>
+        </div>
+    </div>
+
+    <!-- 登录页 -->
+    <div id="loginPage" class="max-w-md mx-auto pt-20">
+        <div class="text-center mb-8">
+            <div class="text-6xl mb-4">🐾</div>
+            <h1 class="text-2xl font-bold text-gray-800 mb-2" data-i18n="appTitle">上门喂养小助手</h1>
+            <p class="text-gray-600 text-sm" data-i18n="appSubtitle">记录每一次贴心的服务</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 card-shadow">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4 text-center" data-i18n="staffLogin">服务人员登录</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="password">密码</label>
+                    <input type="password" id="loginPassword" placeholder="请输入密码"
+                        class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                </div>
+                <button onclick="doLogin()" 
+                    class="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all">
+                    <span data-i18n="login">登录</span>
+                </button>
+                <p id="loginError" class="text-red-500 text-sm text-center hidden" data-i18n="wrongPassword">密码错误</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主应用页 -->
+    <div id="mainApp" class="hidden">
+        <!-- 填写页 -->
+        <div id="formPage" class="max-w-md mx-auto pt-6">
+            <div class="text-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">🐾 <span data-i18n="appTitle">上门喂养小助手</span></h1>
+                <p class="text-gray-600 text-sm" data-i18n="appSubtitle">记录每一次贴心的服务</p>
+            </div>
+
+            <!-- 选择模板提示 -->
+            <div id="templateHint" class="bg-purple-50 border border-purple-200 rounded-xl p-3 mb-4 hidden">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <span class="mr-2">📋</span>
+                        <span class="text-sm text-purple-700" data-i18n="usingTemplate">正在使用模板：</span>
+                        <span id="currentTemplateName" class="text-sm font-medium text-purple-800"></span>
+                    </div>
+                    <button onclick="clearTemplate()" class="text-purple-600 text-sm" data-i18n="clear">清除</button>
+                </div>
+            </div>
+
+            <form id="feedingForm" class="space-y-5">
+                <!-- 基础信息 -->
+                <div class="bg-white rounded-2xl p-5 card-shadow">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <span class="mr-2">📅</span> <span data-i18n="basicInfo">基础信息</span>
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="date">日期</label>
+                            <input type="date" id="serviceDate" required
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="startTime">开始时间</label>
+                                <input type="time" id="serviceStartTime" required
+                                    class="w-full px-3 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="endTime">结束时间</label>
+                                <input type="time" id="serviceEndTime"
+                                    class="w-full px-3 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="address">客户地址</label>
+                            <input type="text" id="customerAddress" placeholder="请输入客户地址" required
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="ownerName">主人姓名</label>
+                            <input type="text" id="ownerName" placeholder="请输入主人姓名" required
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="petName">宠物昵称</label>
+                            <div id="petNamesContainer">
+                                <div class="pet-input-group mb-2">
+                                    <div class="pet-input-wrapper">
+                                        <input type="text" name="petName" placeholder="请输入宠物昵称" required
+                                            class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" id="addPetBtn" 
+                                class="w-full mt-2 px-4 py-2 rounded-xl border-2 border-dashed border-purple-300 text-purple-600 hover:bg-purple-50 transition-all text-sm font-medium">
+                                + <span data-i18n="addPet">添加宠物</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 饮食照料 -->
+                <div class="bg-white rounded-2xl p-5 card-shadow">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <span class="mr-2">🍽️</span> <span data-i18n="feeding">饮食照料</span>
+                    </h2>
+                    <div class="space-y-4">
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="bowlCleaned">
+                            <label for="bowlCleaned">
+                                <span class="checkbox-custom"></span>
+                                <span class="text-gray-700" data-i18n="bowlCleaned">粮碗/水碗清洗</span>
+                            </label>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3" data-i18n="feedingType">喂食类型</label>
+                            <div class="space-y-3">
+                                <div class="feeding-type-row">
+                                    <div class="checkbox-wrapper">
+                                        <input type="checkbox" id="feedingTypeDry" name="feedingType" value="干粮">
+                                        <label for="feedingTypeDry">
+                                            <span class="checkbox-custom"></span>
+                                            <span class="text-gray-700" data-i18n="dryFood">干粮</span>
+                                        </label>
+                                    </div>
+                                    <input type="text" id="feedingBrandDry" placeholder="品牌"
+                                        class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 text-sm bg-white">
+                                </div>
+                                <div class="feeding-type-row">
+                                    <div class="checkbox-wrapper">
+                                        <input type="checkbox" id="feedingTypeWet" name="feedingType" value="湿粮">
+                                        <label for="feedingTypeWet">
+                                            <span class="checkbox-custom"></span>
+                                            <span class="text-gray-700" data-i18n="wetFood">湿粮</span>
+                                        </label>
+                                    </div>
+                                    <input type="text" id="feedingBrandWet" placeholder="品牌"
+                                        class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 text-sm bg-white">
+                                </div>
+                                <div class="feeding-type-row">
+                                    <div class="checkbox-wrapper">
+                                        <input type="checkbox" id="feedingTypeCan" name="feedingType" value="罐头">
+                                        <label for="feedingTypeCan">
+                                            <span class="checkbox-custom"></span>
+                                            <span class="text-gray-700" data-i18n="cannedFood">罐头</span>
+                                        </label>
+                                    </div>
+                                    <input type="text" id="feedingBrandCan" placeholder="品牌"
+                                        class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 text-sm bg-white">
+                                </div>
+                                <div class="feeding-type-row">
+                                    <div class="checkbox-wrapper">
+                                        <input type="checkbox" id="feedingTypeSnack" name="feedingType" value="零食">
+                                        <label for="feedingTypeSnack">
+                                            <span class="checkbox-custom"></span>
+                                            <span class="text-gray-700" data-i18n="treats">零食</span>
+                                        </label>
+                                    </div>
+                                    <input type="text" id="feedingBrandSnack" placeholder="品牌"
+                                        class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 text-sm bg-white">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="feedingAmount">喂食量</label>
+                            <div class="flex gap-2 items-center">
+                                <input type="number" id="feedingAmount" placeholder="数量" min="0" step="any"
+                                    class="flex-1 px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                                <select id="feedingUnit" class="px-3 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white" style="min-width: 80px;">
+                                    <option value="g">g</option>
+                                    <option value="份">份</option>
+                                    <option value="包">包</option>
+                                    <option value="罐">罐</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 服务前进食情况 -->
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-3" data-i18n="eatingBefore">服务前（原有粮）进食情况</label>
+                            <div class="flex flex-wrap gap-2 mb-3">
+                                <button type="button" class="toggle-btn px-3 py-2 rounded-xl text-sm" data-group="eatingBefore" data-value="吃完了" data-i18n-value="finishedAll">吃完了</button>
+                                <button type="button" class="toggle-btn px-3 py-2 rounded-xl text-sm" data-group="eatingBefore" data-value="吃了大部分" data-i18n-value="mostlyEaten">吃了大部分</button>
+                                <button type="button" class="toggle-btn px-3 py-2 rounded-xl text-sm" data-group="eatingBefore" data-value="吃了一点" data-i18n-value="ateALittle">吃了一点</button>
+                                <button type="button" class="toggle-btn px-3 py-2 rounded-xl text-sm" data-group="eatingBefore" data-value="没怎么吃" data-i18n-value="hardlyAte">没怎么吃</button>
+                            </div>
+                            <input type="file" id="eatingBeforePhotoInput" accept="image/*" class="hidden">
+                            <button type="button" class="small-photo-btn border-2 border-dashed border-purple-300 text-purple-600 hover:bg-purple-50 transition-all" onclick="document.getElementById('eatingBeforePhotoInput').click()">
+                                📷 <span data-i18n="addPhoto">添加照片</span>
+                            </button>
+                            <div id="eatingBeforePhotoPreview" class="hidden">
+                                <img id="eatingBeforePhoto" class="small-photo-preview">
+                                <button type="button" class="text-red-500 text-xs mt-1" onclick="removePhoto('eatingBefore')" data-i18n="delete">删除</button>
+                            </div>
+                        </div>
+
+                        <!-- 服务时进食情况 -->
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-3" data-i18n="eatingDuring">服务时（新给粮）进食情况</label>
+                            <div class="flex flex-wrap gap-2 mb-3">
+                                <button type="button" class="toggle-btn px-3 py-2 rounded-xl text-sm" data-group="eatingDuring" data-value="吃得很香" data-i18n-value="ateWell">吃得很香</button>
+                                <button type="button" class="toggle-btn px-3 py-2 rounded-xl text-sm" data-group="eatingDuring" data-value="正常进食" data-i18n-value="normalEating">正常进食</button>
+                                <button type="button" class="toggle-btn px-3 py-2 rounded-xl text-sm" data-group="eatingDuring" data-value="吃了一点" data-i18n-value="ateALittle">吃了一点</button>
+                                <button type="button" class="toggle-btn px-3 py-2 rounded-xl text-sm" data-group="eatingDuring" data-value="没怎么吃" data-i18n-value="hardlyAte">没怎么吃</button>
+                            </div>
+                            <input type="file" id="eatingDuringPhotoInput" accept="image/*" class="hidden">
+                            <button type="button" class="small-photo-btn border-2 border-dashed border-purple-300 text-purple-600 hover:bg-purple-50 transition-all" onclick="document.getElementById('eatingDuringPhotoInput').click()">
+                                📷 <span data-i18n="addPhoto">添加照片</span>
+                            </button>
+                            <div id="eatingDuringPhotoPreview" class="hidden">
+                                <img id="eatingDuringPhoto" class="small-photo-preview">
+                                <button type="button" class="text-red-500 text-xs mt-1" onclick="removePhoto('eatingDuring')" data-i18n="delete">删除</button>
+                            </div>
+                        </div>
+
+                        <!-- 换水 -->
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <div class="checkbox-wrapper mb-3">
+                                <input type="checkbox" id="waterChanged">
+                                <label for="waterChanged">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="text-gray-700" data-i18n="waterChanged">已换水</span>
+                                </label>
+                            </div>
+                            <input type="file" id="waterPhotoInput" accept="image/*" class="hidden">
+                            <button type="button" class="small-photo-btn border-2 border-dashed border-purple-300 text-purple-600 hover:bg-purple-50 transition-all" onclick="document.getElementById('waterPhotoInput').click()">
+                                📷 <span data-i18n="waterPhoto">换水照片</span>
+                            </button>
+                            <div id="waterPhotoPreview" class="hidden">
+                                <img id="waterPhoto" class="small-photo-preview">
+                                <button type="button" class="text-red-500 text-xs mt-1" onclick="removePhoto('water')" data-i18n="delete">删除</button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="dietNotes">饮食备注</label>
+                            <input type="text" id="dietNotes" placeholder="如有特殊情况请备注"
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 宠物状态 -->
+                <div class="bg-white rounded-2xl p-5 card-shadow">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <span class="mr-2">😺</span> <span data-i18n="petStatus">宠物状态</span>
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3" data-i18n="mood">精神状态</label>
+                            <div class="flex flex-wrap gap-2">
+                                <button type="button" class="toggle-btn px-4 py-2 rounded-xl text-sm" data-group="mood" data-value="活泼好动" data-i18n-value="active">活泼好动</button>
+                                <button type="button" class="toggle-btn px-4 py-2 rounded-xl text-sm" data-group="mood" data-value="正常" data-i18n-value="normal">正常</button>
+                                <button type="button" class="toggle-btn px-4 py-2 rounded-xl text-sm" data-group="mood" data-value="比较安静" data-i18n-value="quiet">比较安静</button>
+                                <button type="button" class="toggle-btn px-4 py-2 rounded-xl text-sm" data-group="mood" data-value="状态异常" data-i18n-value="abnormal">状态异常</button>
+                            </div>
+                        </div>
+
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="playInteraction">
+                            <label for="playInteraction">
+                                <span class="checkbox-custom"></span>
+                                <span class="text-gray-700" data-i18n="playTime">陪玩互动</span>
+                            </label>
+                        </div>
+
+                        <div id="playDurationContainer" class="hidden">
+                            <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="playDuration">陪玩时长（分钟）</label>
+                            <input type="number" id="playDuration" placeholder="请输入分钟数" min="1"
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                        </div>
+
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="grooming">
+                            <label for="grooming">
+                                <span class="checkbox-custom"></span>
+                                <span class="text-gray-700" data-i18n="grooming">梳毛</span>
+                            </label>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="petStatusNotes">宠物状态备注</label>
+                            <input type="text" id="petStatusNotes" placeholder="如有特殊情况请备注"
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 卫生清洁 -->
+                <div class="bg-white rounded-2xl p-5 card-shadow">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <span class="mr-2">💩</span> <span data-i18n="hygiene">卫生清洁</span>
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3" data-i18n="poopStatus">排便情况</label>
+                            <div class="flex flex-wrap gap-2">
+                                <button type="button" class="toggle-btn px-4 py-2 rounded-xl text-sm" data-group="poop" data-value="正常" data-i18n-value="normal">正常</button>
+                                <button type="button" class="toggle-btn px-4 py-2 rounded-xl text-sm" data-group="poop" data-value="偏软" data-i18n-value="soft">偏软</button>
+                                <button type="button" class="toggle-btn px-4 py-2 rounded-xl text-sm" data-group="poop" data-value="拉稀" data-i18n-value="diarrhea">拉稀</button>
+                                <button type="button" class="toggle-btn px-4 py-2 rounded-xl text-sm" data-group="poop" data-value="便秘" data-i18n-value="constipation">便秘</button>
+                                <button type="button" class="toggle-btn px-4 py-2 rounded-xl text-sm" data-group="poop" data-value="未发现" data-i18n-value="notFound">未发现</button>
+                            </div>
+                        </div>
+
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="poopHasHair">
+                            <label for="poopHasHair">
+                                <span class="checkbox-custom"></span>
+                                <span class="text-gray-700" data-i18n="poopHasHair">便便有毛发</span>
+                            </label>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="poopNotes">排便备注</label>
+                            <input type="text" id="poopNotes" placeholder="如有特殊情况请备注"
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                        </div>
+
+                        <!-- 尿团 -->
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-3" data-i18n="urineStatus">尿团情况</label>
+                            <div class="grid grid-cols-2 gap-3 mb-3">
+                                <div>
+                                    <label class="block text-xs text-gray-500 mb-1" data-i18n="urineCount">数量</label>
+                                    <input type="number" id="urineCount" placeholder="几个" min="0"
+                                        class="w-full px-3 py-2 rounded-lg border-2 border-gray-200 input-focus text-gray-800 text-sm bg-white">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-500 mb-1" data-i18n="urineSize">大小</label>
+                                    <div class="flex flex-wrap gap-1">
+                                        <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineSize" data-value="正常">正常</button>
+                                        <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineSize" data-value="偏大">偏大</button>
+                                        <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineSize" data-value="偏小">偏小</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1" data-i18n="urineAbnormal">尿团异常</label>
+                                <div class="flex flex-wrap gap-1 mb-3">
+                                    <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineAbnormal" data-value="无异常">无异常</button>
+                                    <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineAbnormal" data-value="颜色深">颜色深</button>
+                                    <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineAbnormal" data-value="颜色浅">颜色浅</button>
+                                    <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineAbnormal" data-value="有血丝">有血丝</button>
+                                    <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineAbnormal" data-value="气味异常">气味异常</button>
+                                    <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineAbnormal" data-value="结块异常">结块异常</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1" data-i18n="urineNotes">尿团备注</label>
+                                <input type="text" id="urineNotes" placeholder="如有特殊情况请备注"
+                                    class="w-full px-3 py-2 rounded-lg border-2 border-gray-200 input-focus text-gray-800 text-sm bg-white">
+                            </div>
+                        </div>
+
+                        <!-- 排泄物照片 -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="wastePhoto">排泄物照片</label>
+                            <input type="file" id="wastePhotoInput" accept="image/*" class="hidden">
+                            <button type="button" class="w-full px-4 py-2 rounded-xl border-2 border-dashed border-purple-300 text-purple-600 hover:bg-purple-50 transition-all text-sm" onclick="document.getElementById('wastePhotoInput').click()">
+                                📷 <span data-i18n="uploadWastePhoto">上传粑粑/尿团照片</span>
+                            </button>
+                            <div id="wastePhotoPreview" class="hidden mt-2">
+                                <img id="wastePhoto" class="small-photo-preview">
+                                <button type="button" class="text-red-500 text-xs mt-1" onclick="removePhoto('waste')" data-i18n="delete">删除</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 呕吐情况 -->
+                <div class="bg-white rounded-2xl p-5 card-shadow">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <span class="mr-2">🤮</span> <span data-i18n="vomit">呕吐情况</span>
+                    </h2>
+                    <div class="space-y-4">
+                        <div class="flex gap-2">
+                            <button type="button" class="toggle-btn px-4 py-2 rounded-xl text-sm flex-1" data-group="vomit" data-value="未发现呕吐物" data-i18n-value="noVomit">未发现呕吐物</button>
+                            <button type="button" class="toggle-btn px-4 py-2 rounded-xl text-sm flex-1" data-group="vomit" data-value="发现呕吐物" data-i18n-value="foundVomit">发现呕吐物</button>
+                        </div>
+
+                        <div id="vomitDetails" class="hidden space-y-3">
+                            <label class="block text-sm font-medium text-gray-700" data-i18n="vomitType">呕吐物类型</label>
+                            <div class="space-y-2">
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="vomitTypeHairball" name="vomitType" value="毛球">
+                                    <label for="vomitTypeHairball">
+                                        <span class="checkbox-custom"></span>
+                                        <span class="text-gray-700" data-i18n="hairball">毛球</span>
+                                    </label>
+                                </div>
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="vomitTypeFood" name="vomitType" value="未消化的食物">
+                                    <label for="vomitTypeFood">
+                                        <span class="checkbox-custom"></span>
+                                        <span class="text-gray-700" data-i18n="undigestedFood">未消化的食物</span>
+                                    </label>
+                                </div>
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="vomitTypeLiquid" name="vomitType" value="液体/泡沫">
+                                    <label for="vomitTypeLiquid">
+                                        <span class="checkbox-custom"></span>
+                                        <span class="text-gray-700" data-i18n="liquidFoam">液体/泡沫</span>
+                                    </label>
+                                </div>
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="vomitTypeOther" name="vomitType" value="其他">
+                                    <label for="vomitTypeOther">
+                                        <span class="checkbox-custom"></span>
+                                        <span class="text-gray-700" data-i18n="other">其他</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="vomitNotes">呕吐备注</label>
+                                <input type="text" id="vomitNotes" placeholder="描述呕吐物情况"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 环境检查 -->
+                <div class="bg-white rounded-2xl p-5 card-shadow">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <span class="mr-2">🏠</span> <span data-i18n="environment">环境检查</span>
+                    </h2>
+                    <div class="space-y-3">
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="doorWindowChecked">
+                            <label for="doorWindowChecked">
+                                <span class="checkbox-custom"></span>
+                                <span class="text-gray-700" data-i18n="doorWindowChecked">门窗已确认锁好</span>
+                            </label>
+                        </div>
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="utilitiesChecked">
+                            <label for="utilitiesChecked">
+                                <span class="checkbox-custom"></span>
+                                <span class="text-gray-700" data-i18n="utilitiesChecked">水电/空调已复原</span>
+                            </label>
+                        </div>
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="surroundingCleaned">
+                            <label for="surroundingCleaned">
+                                <span class="checkbox-custom"></span>
+                                <span class="text-gray-700" data-i18n="surroundingCleaned">周边清洁/补砂</span>
+                            </label>
+                        </div>
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="trashHandled">
+                            <label for="trashHandled">
+                                <span class="checkbox-custom"></span>
+                                <span class="text-gray-700" data-i18n="trashHandled">垃圾已处理</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 照片上传 -->
+                <div class="bg-white rounded-2xl p-5 card-shadow">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <span class="mr-2">📷</span> <span data-i18n="photoRecord">拍照记录</span>
+                    </h2>
+                    <div class="space-y-4">
+                        <input type="file" id="photoInput" accept="image/*" class="hidden">
+                        <button type="button" id="uploadPhotoBtn" 
+                            class="w-full px-4 py-3 rounded-xl border-2 border-dashed border-purple-300 text-purple-600 hover:bg-purple-50 transition-all">
+                            📷 <span data-i18n="clickToUpload">点击上传照片</span>
+                        </button>
+                        <div id="photoPreviewContainer" class="hidden">
+                            <div class="photo-preview-container">
+                                <img id="photoPreview" class="photo-preview w-full">
+                            </div>
+                            <button type="button" id="removePhotoBtn" class="mt-2 text-red-500 text-sm" data-i18n="deletePhoto">删除照片</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 备注 -->
+                <div class="bg-white rounded-2xl p-5 card-shadow">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <span class="mr-2">📝</span> <span data-i18n="otherNotes">其他备注</span>
+                    </h2>
+                    <textarea id="notes" rows="3" placeholder="其他需要告知主人的事项..."
+                        class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 resize-none bg-white"></textarea>
+                </div>
+
+                <!-- 保存模板 -->
+                <div class="bg-purple-50 rounded-2xl p-4">
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" id="saveAsTemplate">
+                        <label for="saveAsTemplate">
+                            <span class="checkbox-custom"></span>
+                            <span class="text-purple-700" data-i18n="saveAsTemplate">保存客户信息为模板</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 提交按钮 -->
+                <button type="submit" 
+                    class="w-full py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all active:scale-98">
+                    <span data-i18n="generateReport">生成报告</span> ✨
+                </button>
+            </form>
+        </div>
+
+        <!-- 报告页 -->
+        <div id="reportPage" class="max-w-md mx-auto pt-6 hidden">
+            <div class="text-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800 mb-2">🐾 <span data-i18n="feedingReport">喂养报告</span></h1>
+                <p class="text-gray-600 text-sm" data-i18n="reportGenerated">报告已生成，可分享给客户</p>
+            </div>
+
+            <div class="report-card rounded-2xl p-5 card-shadow mb-5">
+                <div class="space-y-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-600 text-sm">📍 <span data-i18n="address">地址</span></p>
+                            <p id="reportAddress" class="font-medium text-gray-800"></p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-gray-600 text-sm">👤 <span data-i18n="owner">主人</span></p>
+                            <p id="reportOwner" class="font-medium text-gray-800"></p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600 text-sm">🐾 <span data-i18n="pet">宠物</span></p>
+                            <p id="reportPets" class="font-medium text-gray-800"></p>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-gray-600 text-sm">📅 <span data-i18n="serviceTime">服务时间</span></p>
+                        <p id="reportDateTime" class="font-medium text-gray-800"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl p-5 card-shadow space-y-4 mb-5">
+                <div>
+                    <p class="text-gray-600 text-sm mb-1">😺 <span data-i18n="petStatus">宠物状态</span></p>
+                    <p id="reportMood" class="text-gray-800"></p>
+                </div>
+                <div>
+                    <p class="text-gray-600 text-sm mb-1">🍽️ <span data-i18n="feeding">饮食照料</span></p>
+                    <p id="reportFeeding" class="text-gray-800"></p>
+                </div>
+                <div>
+                    <p class="text-gray-600 text-sm mb-1">💩 <span data-i18n="hygiene">卫生清洁</span></p>
+                    <p id="reportCleaning" class="text-gray-800"></p>
+                </div>
+                <div id="reportVomitContainer" class="hidden">
+                    <p class="text-gray-600 text-sm mb-1">🤮 <span data-i18n="vomit">呕吐情况</span></p>
+                    <p id="reportVomit" class="text-gray-800"></p>
+                </div>
+                <div>
+                    <p class="text-gray-600 text-sm mb-1">🏠 <span data-i18n="environment">环境检查</span></p>
+                    <p id="reportEnvironment" class="text-gray-800"></p>
+                </div>
+                <div id="reportNotesContainer" class="hidden">
+                    <p class="text-gray-600 text-sm mb-1">📝 <span data-i18n="notes">备注</span></p>
+                    <p id="reportNotes" class="text-gray-800"></p>
+                </div>
+                <div id="reportPhotoContainer" class="hidden">
+                    <p class="text-gray-600 text-sm mb-1">📷 <span data-i18n="photo">照片</span></p>
+                    <div class="photo-preview-container">
+                        <img id="reportPhoto" class="photo-preview w-full mt-2">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 二维码分享区域 -->
+            <div class="bg-white rounded-2xl p-5 card-shadow mb-5 text-center">
+                <h3 class="font-semibold text-gray-800 mb-3">📱 <span data-i18n="shareToClient">分享给客户</span></h3>
+                <div class="qr-container mb-3">
+                    <img id="qrcode" alt="QR Code" style="width: 200px; height: 200px;">
+                </div>
+                <p class="text-sm text-gray-500 mb-3" data-i18n="scanToView">客户扫码即可查看报告</p>
+                <div>
+                    <input type="text" id="shareLink" readonly
+                        class="w-full px-4 py-2 rounded-lg border border-gray-200 text-sm text-gray-600 bg-gray-50 mb-2">
+                    <button id="copyLinkBtn" 
+                        class="w-full py-2 bg-purple-100 text-purple-700 rounded-lg text-sm font-medium hover:bg-purple-200 transition-all">
+                        <span data-i18n="copyLink">复制链接</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="space-y-3">
+                <button id="copyTextBtn" 
+                    class="w-full py-3 bg-white border-2 border-purple-300 text-purple-700 font-medium rounded-2xl hover:bg-purple-50 transition-all">
+                    📋 <span data-i18n="copyTextReport">复制文字报告</span>
+                </button>
+                <button id="editBtn" 
+                    class="w-full py-3 bg-gray-100 text-gray-700 font-medium rounded-2xl hover:bg-gray-200 transition-all">
+                    ✏️ <span data-i18n="backToEdit">返回编辑</span>
+                </button>
+                <button id="newReportBtn" 
+                    class="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all">
+                    📝 <span data-i18n="newReport">新建报告</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 历史记录页 -->
+        <div id="historyPage" class="max-w-md mx-auto pt-6 hidden">
+            <div class="text-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800 mb-2">📋 <span data-i18n="history">历史记录</span></h1>
+                <p class="text-gray-600 text-sm" data-i18n="viewPastReports">查看过去的服务记录</p>
+            </div>
+
+            <div id="historyList" class="space-y-3">
+                <!-- 历史记录会动态加载 -->
+            </div>
+            
+            <div id="historyEmpty" class="text-center py-10 hidden">
+                <div class="text-4xl mb-3">📭</div>
+                <p class="text-gray-500" data-i18n="noHistory">暂无历史记录</p>
+            </div>
+
+            <div id="historyLoading" class="text-center py-10">
+                <div class="loading-spinner mx-auto"></div>
+            </div>
+        </div>
+
+        <!-- 模板页 -->
+        <div id="templatePage" class="max-w-md mx-auto pt-6 hidden">
+            <div class="text-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800 mb-2">📋 <span data-i18n="templates">客户模板</span></h1>
+                <p class="text-gray-600 text-sm" data-i18n="quickFill">快速填充客户信息</p>
+            </div>
+
+            <div id="templateList" class="space-y-3">
+                <!-- 模板会动态加载 -->
+            </div>
+            
+            <div id="templateEmpty" class="text-center py-10 hidden">
+                <div class="text-4xl mb-3">📝</div>
+                <p class="text-gray-500 mb-2" data-i18n="noTemplates">暂无保存的模板</p>
+                <p class="text-gray-400 text-sm" data-i18n="templateHint">填写报告时勾选"保存为模板"即可创建</p>
+            </div>
+
+            <div id="templateLoading" class="text-center py-10">
+                <div class="loading-spinner mx-auto"></div>
+            </div>
+        </div>
+
+        <!-- 底部导航栏 -->
+        <div class="bottom-nav">
+            <div class="nav-item active" data-page="form" onclick="switchPage('form')">
+                <span>📝</span>
+                <span data-i18n="navNew">新建</span>
+            </div>
+            <div class="nav-item" data-page="history" onclick="switchPage('history')">
+                <span>📋</span>
+                <span data-i18n="navHistory">历史</span>
+            </div>
+            <div class="nav-item" data-page="template" onclick="switchPage('template')">
+                <span>👤</span>
+                <span data-i18n="navTemplates">模板</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 配置 ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDKfklrd57Ua42UG6wMo5btzCqaf_P84kM",
+            authDomain: "pet-feeding-report.firebaseapp.com",
+            projectId: "pet-feeding-report",
+            storageBucket: "pet-feeding-report.firebasestorage.app",
+            messagingSenderId: "252784779994",
+            appId: "1:252784779994:web:0eeedf2387795fc62fbbe3"
+        };
+
+        // 密码设置（你可以修改这个密码）
+        const STAFF_PASSWORD = "sofursogood2025";
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const BASE_URL = window.location.href.replace(/\/[^\/]*$/, '');
+
+        // ==================== 多语言 ====================
+        let currentLang = localStorage.getItem('lang') || 'zh';
+
+        const translations = {
+            zh: {
+                appTitle: "上门喂养小助手",
+                appSubtitle: "记录每一次贴心的服务",
+                staffLogin: "服务人员登录",
+                password: "密码",
+                login: "登录",
+                wrongPassword: "密码错误",
+                loading: "正在处理...",
+                basicInfo: "基础信息",
+                date: "日期",
+                startTime: "开始时间",
+                endTime: "结束时间",
+                address: "客户地址",
+                ownerName: "主人姓名",
+                petName: "宠物昵称",
+                addPet: "添加宠物",
+                feeding: "饮食照料",
+                bowlCleaned: "粮碗/水碗清洗",
+                feedingType: "喂食类型",
+                dryFood: "干粮",
+                wetFood: "湿粮",
+                cannedFood: "罐头",
+                treats: "零食",
+                feedingAmount: "喂食量",
+                eatingBefore: "服务前（原有粮）进食情况",
+                eatingDuring: "服务时（新给粮）进食情况",
+                waterChanged: "已换水",
+                waterPhoto: "换水照片",
+                dietNotes: "饮食备注",
+                petStatus: "宠物状态",
+                mood: "精神状态",
+                playTime: "陪玩互动",
+                playDuration: "陪玩时长（分钟）",
+                grooming: "梳毛",
+                petStatusNotes: "宠物状态备注",
+                hygiene: "卫生清洁",
+                poopStatus: "排便情况",
+                poopHasHair: "便便有毛发",
+                poopNotes: "排便备注",
+                urineStatus: "尿团情况",
+                urineCount: "数量",
+                urineSize: "大小",
+                urineAbnormal: "尿团异常",
+                urineNotes: "尿团备注",
+                wastePhoto: "排泄物照片",
+                uploadWastePhoto: "上传粑粑/尿团照片",
+                vomit: "呕吐情况",
+                vomitType: "呕吐物类型",
+                hairball: "毛球",
+                undigestedFood: "未消化的食物",
+                liquidFoam: "液体/泡沫",
+                other: "其他",
+                vomitNotes: "呕吐备注",
+                environment: "环境检查",
+                doorWindowChecked: "门窗已确认锁好",
+                utilitiesChecked: "水电/空调已复原",
+                surroundingCleaned: "周边清洁/补砂",
+                trashHandled: "垃圾已处理",
+                photoRecord: "拍照记录",
+                clickToUpload: "点击上传照片",
+                deletePhoto: "删除照片",
+                otherNotes: "其他备注",
+                saveAsTemplate: "保存客户信息为模板",
+                generateReport: "生成报告",
+                feedingReport: "喂养报告",
+                reportGenerated: "报告已生成，可分享给客户",
+                owner: "主人",
+                pet: "宠物",
+                serviceTime: "服务时间",
+                notes: "备注",
+                photo: "照片",
+                shareToClient: "分享给客户",
+                scanToView: "客户扫码即可查看报告",
+                copyLink: "复制链接",
+                copyTextReport: "复制文字报告",
+                backToEdit: "返回编辑",
+                newReport: "新建报告",
+                history: "历史记录",
+                viewPastReports: "查看过去的服务记录",
+                noHistory: "暂无历史记录",
+                templates: "客户模板",
+                quickFill: "快速填充客户信息",
+                noTemplates: "暂无保存的模板",
+                templateHint: "填写报告时勾选\"保存为模板\"即可创建",
+                navNew: "新建",
+                navHistory: "历史",
+                navTemplates: "模板",
+                addPhoto: "添加照片",
+                delete: "删除",
+                usingTemplate: "正在使用模板：",
+                clear: "清除",
+                useTemplate: "使用",
+                deleteTemplate: "删除",
+                confirmDelete: "确定要删除这个模板吗？",
+                confirmNewReport: "确定要新建报告吗？当前表单内容将被清空。",
+                linkCopied: "链接已复制！",
+                textCopied: "文字报告已复制到剪贴板！",
+                saveFailed: "保存失败",
+                copyFailed: "复制失败"
+            },
+            en: {
+                appTitle: "Pet Feeding Assistant",
+                appSubtitle: "Record every caring service",
+                staffLogin: "Staff Login",
+                password: "Password",
+                login: "Login",
+                wrongPassword: "Wrong password",
+                loading: "Processing...",
+                basicInfo: "Basic Info",
+                date: "Date",
+                startTime: "Start Time",
+                endTime: "End Time",
+                address: "Address",
+                ownerName: "Owner Name",
+                petName: "Pet Name",
+                addPet: "Add Pet",
+                feeding: "Feeding",
+                bowlCleaned: "Bowl Cleaned",
+                feedingType: "Food Type",
+                dryFood: "Dry Food",
+                wetFood: "Wet Food",
+                cannedFood: "Canned Food",
+                treats: "Treats",
+                feedingAmount: "Amount",
+                eatingBefore: "Before Service (Existing Food)",
+                eatingDuring: "During Service (New Food)",
+                waterChanged: "Water Changed",
+                waterPhoto: "Water Photo",
+                dietNotes: "Diet Notes",
+                petStatus: "Pet Status",
+                mood: "Mood",
+                playTime: "Play Time",
+                playDuration: "Play Duration (min)",
+                grooming: "Grooming",
+                petStatusNotes: "Status Notes",
+                hygiene: "Hygiene",
+                poopStatus: "Poop Status",
+                poopHasHair: "Hair in Poop",
+                poopNotes: "Poop Notes",
+                urineStatus: "Urine Status",
+                urineCount: "Count",
+                urineSize: "Size",
+                urineAbnormal: "Abnormal",
+                urineNotes: "Urine Notes",
+                wastePhoto: "Waste Photo",
+                uploadWastePhoto: "Upload Waste Photo",
+                vomit: "Vomit",
+                vomitType: "Vomit Type",
+                hairball: "Hairball",
+                undigestedFood: "Undigested Food",
+                liquidFoam: "Liquid/Foam",
+                other: "Other",
+                vomitNotes: "Vomit Notes",
+                environment: "Environment",
+                doorWindowChecked: "Doors & Windows Locked",
+                utilitiesChecked: "Utilities Restored",
+                surroundingCleaned: "Area Cleaned",
+                trashHandled: "Trash Handled",
+                photoRecord: "Photo",
+                clickToUpload: "Click to Upload",
+                deletePhoto: "Delete Photo",
+                otherNotes: "Other Notes",
+                saveAsTemplate: "Save as Template",
+                generateReport: "Generate Report",
+                feedingReport: "Feeding Report",
+                reportGenerated: "Report generated, share with client",
+                owner: "Owner",
+                pet: "Pet",
+                serviceTime: "Service Time",
+                notes: "Notes",
+                photo: "Photo",
+                shareToClient: "Share with Client",
+                scanToView: "Scan to view report",
+                copyLink: "Copy Link",
+                copyTextReport: "Copy Text Report",
+                backToEdit: "Back to Edit",
+                newReport: "New Report",
+                history: "History",
+                viewPastReports: "View past service records",
+                noHistory: "No history yet",
+                templates: "Templates",
+                quickFill: "Quick fill client info",
+                noTemplates: "No templates saved",
+                templateHint: "Check \"Save as Template\" when creating a report",
+                navNew: "New",
+                navHistory: "History",
+                navTemplates: "Templates",
+                addPhoto: "Add Photo",
+                delete: "Delete",
+                usingTemplate: "Using template:",
+                clear: "Clear",
+                useTemplate: "Use",
+                deleteTemplate: "Delete",
+                confirmDelete: "Delete this template?",
+                confirmNewReport: "Start a new report? Current form will be cleared.",
+                linkCopied: "Link copied!",
+                textCopied: "Text report copied!",
+                saveFailed: "Save failed",
+                copyFailed: "Copy failed"
+            }
+        };
+
+        function switchLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+            
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.dataset.i18n;
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+        }
+
+        // ==================== 登录 ====================
+        function doLogin() {
+            const password = document.getElementById('loginPassword').value;
+            if (password === STAFF_PASSWORD) {
+                localStorage.setItem('loggedIn', 'true');
+                document.getElementById('loginPage').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                document.getElementById('loginError').classList.add('hidden');
+            } else {
+                document.getElementById('loginError').classList.remove('hidden');
+            }
+        }
+
+        document.getElementById('loginPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') doLogin();
+        });
+
+        // ==================== 照片处理 ====================
+        let photos = {
+            main: null,
+            eatingBefore: null,
+            eatingDuring: null,
+            water: null,
+            waste: null
+        };
+
+        function setupPhotoInput(inputId, previewId, photoId, photoKey) {
+            document.getElementById(inputId).addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        photos[photoKey] = e.target.result;
+                        document.getElementById(photoId).src = e.target.result;
+                        document.getElementById(previewId).classList.remove('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        function removePhoto(photoKey) {
+            photos[photoKey] = null;
+            if (photoKey === 'main') {
+                document.getElementById('photoPreviewContainer').classList.add('hidden');
+                document.getElementById('uploadPhotoBtn').innerHTML = '📷 <span data-i18n="clickToUpload">' + translations[currentLang].clickToUpload + '</span>';
+                document.getElementById('photoInput').value = '';
+            } else {
+                document.getElementById(photoKey + 'PhotoPreview').classList.add('hidden');
+                document.getElementById(photoKey + 'PhotoInput').value = '';
+            }
+        }
+
+        // ==================== 页面切换 ====================
+        function switchPage(page) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.toggle('active', item.dataset.page === page);
+            });
+
+            document.getElementById('formPage').classList.add('hidden');
+            document.getElementById('reportPage').classList.add('hidden');
+            document.getElementById('historyPage').classList.add('hidden');
+            document.getElementById('templatePage').classList.add('hidden');
+
+            if (page === 'form') {
+                document.getElementById('formPage').classList.remove('hidden');
+            } else if (page === 'history') {
+                document.getElementById('historyPage').classList.remove('hidden');
+                loadHistory();
+            } else if (page === 'template') {
+                document.getElementById('templatePage').classList.remove('hidden');
+                loadTemplates();
+            }
+
+            window.scrollTo(0, 0);
+        }
+
+        // ==================== 历史记录 ====================
+        async function loadHistory() {
+            const listEl = document.getElementById('historyList');
+            const emptyEl = document.getElementById('historyEmpty');
+            const loadingEl = document.getElementById('historyLoading');
+
+            listEl.innerHTML = '';
+            emptyEl.classList.add('hidden');
+            loadingEl.classList.remove('hidden');
+
+            try {
+                const snapshot = await db.collection('reports')
+                    .orderBy('createdAt', 'desc')
+                    .limit(50)
+                    .get();
+
+                loadingEl.classList.add('hidden');
+
+                if (snapshot.empty) {
+                    emptyEl.classList.remove('hidden');
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const dateObj = new Date(data.date);
+                    const dateStr = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
+                    
+                    const card = document.createElement('div');
+                    card.className = 'history-card card-shadow';
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="font-medium text-gray-800">${data.petNames ? data.petNames.join('、') : '未知'}</p>
+                                <p class="text-sm text-gray-500">${data.ownerName || '未知'}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm text-gray-600">${dateStr}</p>
+                                <p class="text-xs text-gray-400">${data.startTime || data.time || ''}</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2 truncate">${data.customerAddress || ''}</p>
+                    `;
+                    card.onclick = () => {
+                        window.open(`${BASE_URL}/view.html?id=${doc.id}`, '_blank');
+                    };
+                    listEl.appendChild(card);
+                });
+            } catch (error) {
+                console.error('加载历史失败:', error);
+                loadingEl.classList.add('hidden');
+            }
+        }
+
+        // ==================== 模板 ====================
+        let currentTemplate = null;
+
+        async function loadTemplates() {
+            const listEl = document.getElementById('templateList');
+            const emptyEl = document.getElementById('templateEmpty');
+            const loadingEl = document.getElementById('templateLoading');
+
+            listEl.innerHTML = '';
+            emptyEl.classList.add('hidden');
+            loadingEl.classList.remove('hidden');
+
+            try {
+                const snapshot = await db.collection('templates')
+                    .orderBy('createdAt', 'desc')
+                    .get();
+
+                loadingEl.classList.add('hidden');
+
+                if (snapshot.empty) {
+                    emptyEl.classList.remove('hidden');
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    
+                    const card = document.createElement('div');
+                    card.className = 'template-card card-shadow';
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <p class="font-medium text-gray-800">${data.petNames ? data.petNames.join('、') : '未知'}</p>
+                                <p class="text-sm text-gray-500">${data.ownerName || '未知'}</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-400 mb-3 truncate">${data.customerAddress || ''}</p>
+                        <div class="flex gap-2">
+                            <button class="flex-1 py-2 bg-purple-100 text-purple-700 rounded-lg text-sm font-medium" onclick="useTemplate('${doc.id}')">${translations[currentLang].useTemplate}</button>
+                            <button class="px-3 py-2 bg-red-100 text-red-600 rounded-lg text-sm" onclick="deleteTemplate('${doc.id}')">${translations[currentLang].deleteTemplate}</button>
+                        </div>
+                    `;
+                    listEl.appendChild(card);
+                });
+            } catch (error) {
+                console.error('加载模板失败:', error);
+                loadingEl.classList.add('hidden');
+            }
+        }
+
+        async function useTemplate(templateId) {
+            try {
+                const doc = await db.collection('templates').doc(templateId).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    currentTemplate = data;
+                    
+                    document.getElementById('customerAddress').value = data.customerAddress || '';
+                    document.getElementById('ownerName').value = data.ownerName || '';
+                    
+                    // 清除现有宠物输入框
+                    const container = document.getElementById('petNamesContainer');
+                    container.innerHTML = '';
+                    
+                    // 添加宠物
+                    if (data.petNames && data.petNames.length > 0) {
+                        data.petNames.forEach((name, index) => {
+                            const group = document.createElement('div');
+                            group.className = 'pet-input-group mb-2';
+                            group.innerHTML = `
+                                <div class="pet-input-wrapper">
+                                    <input type="text" name="petName" placeholder="请输入宠物昵称" required value="${name}"
+                                        class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                                </div>
+                                ${index > 0 ? '<button type="button" class="remove-pet-btn px-3 py-3 rounded-xl bg-red-100 text-red-500 hover:bg-red-200 transition-all">✕</button>' : ''}
+                            `;
+                            container.appendChild(group);
+                            
+                            if (index > 0) {
+                                group.querySelector('.remove-pet-btn').addEventListener('click', () => group.remove());
+                            }
+                        });
+                    } else {
+                        container.innerHTML = `
+                            <div class="pet-input-group mb-2">
+                                <div class="pet-input-wrapper">
+                                    <input type="text" name="petName" placeholder="请输入宠物昵称" required
+                                        class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    document.getElementById('templateHint').classList.remove('hidden');
+                    document.getElementById('currentTemplateName').textContent = data.petNames ? data.petNames.join('、') : data.ownerName;
+                    
+                    switchPage('form');
+                }
+            } catch (error) {
+                console.error('使用模板失败:', error);
+            }
+        }
+
+        function clearTemplate() {
+            currentTemplate = null;
+            document.getElementById('templateHint').classList.add('hidden');
+        }
+
+        async function deleteTemplate(templateId) {
+            if (confirm(translations[currentLang].confirmDelete)) {
+                try {
+                    await db.collection('templates').doc(templateId).delete();
+                    loadTemplates();
+                } catch (error) {
+                    console.error('删除模板失败:', error);
+                }
+            }
+        }
+
+        // ==================== 表单处理 ====================
+        function getToggleValue(group) {
+            const active = document.querySelector(`.toggle-btn[data-group="${group}"].active`);
+            return active ? active.dataset.value : '';
+        }
+
+        function getCheckedValues(name) {
+            const checkboxes = document.querySelectorAll(`input[name="${name}"]:checked`);
+            return Array.from(checkboxes).map(cb => cb.value);
+        }
+
+        function getFeedingTypesWithBrands() {
+            const types = [];
+            const typeMap = {
+                'Dry': { id: 'feedingTypeDry', brandId: 'feedingBrandDry', name: '干粮' },
+                'Wet': { id: 'feedingTypeWet', brandId: 'feedingBrandWet', name: '湿粮' },
+                'Can': { id: 'feedingTypeCan', brandId: 'feedingBrandCan', name: '罐头' },
+                'Snack': { id: 'feedingTypeSnack', brandId: 'feedingBrandSnack', name: '零食' }
+            };
+            
+            for (const key in typeMap) {
+                const checkbox = document.getElementById(typeMap[key].id);
+                const brandInput = document.getElementById(typeMap[key].brandId);
+                if (checkbox.checked) {
+                    let typeStr = typeMap[key].name;
+                    if (brandInput.value.trim()) {
+                        typeStr += `(${brandInput.value.trim()})`;
+                    }
+                    types.push(typeStr);
+                }
+            }
+            return types;
+        }
+
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+
+        function generateQRCode(url) {
+            const qrImg = document.getElementById('qrcode');
+            const encodedUrl = encodeURIComponent(url);
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodedUrl}`;
+        }
+
+        // ==================== 初始化 ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查登录状态
+            if (localStorage.getItem('loggedIn') === 'true') {
+                document.getElementById('loginPage').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+            }
+
+            // 设置语言
+            switchLanguage(currentLang);
+
+            // 设置默认日期时间
+            document.getElementById('serviceDate').valueAsDate = new Date();
+            const now = new Date();
+            document.getElementById('serviceStartTime').value = 
+                now.getHours().toString().padStart(2, '0') + ':' + 
+                now.getMinutes().toString().padStart(2, '0');
+
+            // 设置照片输入
+            setupPhotoInput('eatingBeforePhotoInput', 'eatingBeforePhotoPreview', 'eatingBeforePhoto', 'eatingBefore');
+            setupPhotoInput('eatingDuringPhotoInput', 'eatingDuringPhotoPreview', 'eatingDuringPhoto', 'eatingDuring');
+            setupPhotoInput('waterPhotoInput', 'waterPhotoPreview', 'waterPhoto', 'water');
+            setupPhotoInput('wastePhotoInput', 'wastePhotoPreview', 'wastePhoto', 'waste');
+
+            // 主照片上传
+            document.getElementById('uploadPhotoBtn').addEventListener('click', function() {
+                document.getElementById('photoInput').click();
+            });
+
+            document.getElementById('photoInput').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        photos.main = e.target.result;
+                        document.getElementById('photoPreview').src = photos.main;
+                        document.getElementById('photoPreviewContainer').classList.remove('hidden');
+                        document.getElementById('uploadPhotoBtn').innerHTML = '📷 更换照片';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            document.getElementById('removePhotoBtn').addEventListener('click', function() {
+                removePhoto('main');
+            });
+
+            // 添加宠物
+            document.getElementById('addPetBtn').addEventListener('click', function() {
+                const container = document.getElementById('petNamesContainer');
+                const newGroup = document.createElement('div');
+                newGroup.className = 'pet-input-group mb-2';
+                newGroup.innerHTML = `
+                    <div class="pet-input-wrapper">
+                        <input type="text" name="petName" placeholder="请输入宠物昵称" required
+                            class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                    </div>
+                    <button type="button" class="remove-pet-btn px-3 py-3 rounded-xl bg-red-100 text-red-500 hover:bg-red-200 transition-all">
+                        ✕
+                    </button>
+                `;
+                container.appendChild(newGroup);
+                newGroup.querySelector('.remove-pet-btn').addEventListener('click', function() {
+                    newGroup.remove();
+                });
+            });
+
+            // Toggle按钮
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const group = this.dataset.group;
+                    const wasActive = this.classList.contains('active');
+                    
+                    document.querySelectorAll(`.toggle-btn[data-group="${group}"]`).forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    
+                    if (!wasActive) {
+                        this.classList.add('active');
+                    }
+
+                    if (group === 'vomit') {
+                        const vomitDetails = document.getElementById('vomitDetails');
+                        const isVomitFound = document.querySelector('.toggle-btn[data-group="vomit"][data-value="发现呕吐物"]').classList.contains('active');
+                        vomitDetails.classList.toggle('hidden', !isVomitFound);
+                    }
+                });
+            });
+
+            // 陪玩时长
+            document.getElementById('playInteraction').addEventListener('change', function() {
+                document.getElementById('playDurationContainer').classList.toggle('hidden', !this.checked);
+            });
+
+            // 表单提交
+            document.getElementById('feedingForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                showLoading();
+
+                const petNameInputs = document.querySelectorAll('input[name="petName"]');
+                const petNames = Array.from(petNameInputs).map(input => input.value).filter(name => name.trim());
+
+                const formData = {
+                    date: document.getElementById('serviceDate').value,
+                    startTime: document.getElementById('serviceStartTime').value,
+                    endTime: document.getElementById('serviceEndTime').value,
+                    customerAddress: document.getElementById('customerAddress').value,
+                    ownerName: document.getElementById('ownerName').value,
+                    petNames: petNames,
+                    bowlCleaned: document.getElementById('bowlCleaned').checked,
+                    feedingTypes: getFeedingTypesWithBrands(),
+                    feedingAmount: document.getElementById('feedingAmount').value,
+                    feedingUnit: document.getElementById('feedingUnit').value,
+                    eatingBefore: getToggleValue('eatingBefore'),
+                    eatingBeforePhoto: photos.eatingBefore,
+                    eatingDuring: getToggleValue('eatingDuring'),
+                    eatingDuringPhoto: photos.eatingDuring,
+                    waterChanged: document.getElementById('waterChanged').checked,
+                    waterPhoto: photos.water,
+                    dietNotes: document.getElementById('dietNotes').value,
+                    moodStatus: getToggleValue('mood'),
+                    playInteraction: document.getElementById('playInteraction').checked,
+                    playDuration: document.getElementById('playDuration').value,
+                    grooming: document.getElementById('grooming').checked,
+                    petStatusNotes: document.getElementById('petStatusNotes').value,
+                    poopStatus: getToggleValue('poop'),
+                    poopHasHair: document.getElementById('poopHasHair').checked,
+                    poopNotes: document.getElementById('poopNotes').value,
+                    urineCount: document.getElementById('urineCount').value,
+                    urineSize: getToggleValue('urineSize'),
+                    urineAbnormal: getToggleValue('urineAbnormal'),
+                    urineNotes: document.getElementById('urineNotes').value,
+                    wastePhoto: photos.waste,
+                    vomitStatus: getToggleValue('vomit'),
+                    vomitTypes: getCheckedValues('vomitType'),
+                    vomitNotes: document.getElementById('vomitNotes').value,
+                    doorWindowChecked: document.getElementById('doorWindowChecked').checked,
+                    utilitiesChecked: document.getElementById('utilitiesChecked').checked,
+                    surroundingCleaned: document.getElementById('surroundingCleaned').checked,
+                    trashHandled: document.getElementById('trashHandled').checked,
+                    photo: photos.main,
+                    notes: document.getElementById('notes').value,
+                    createdAt: new Date().toISOString()
+                };
+
+                try {
+                    // 保存报告
+                    const docRef = await db.collection('reports').add(formData);
+                    const reportId = docRef.id;
+
+                    // 保存模板
+                    if (document.getElementById('saveAsTemplate').checked) {
+                        await db.collection('templates').add({
+                            customerAddress: formData.customerAddress,
+                            ownerName: formData.ownerName,
+                            petNames: formData.petNames,
+                            createdAt: new Date().toISOString()
+                        });
+                    }
+
+                    // 生成分享链接
+                    const shareUrl = `${BASE_URL}/view.html?id=${reportId}`;
+                    document.getElementById('shareLink').value = shareUrl;
+
+                    try {
+                        generateQRCode(shareUrl);
+                    } catch (qrError) {
+                        console.log('QR generation failed');
+                    }
+
+                    // 更新报告显示
+                    document.getElementById('reportAddress').textContent = formData.customerAddress;
+                    document.getElementById('reportOwner').textContent = formData.ownerName;
+                    document.getElementById('reportPets').textContent = formData.petNames.join('、');
+                    
+                    let timeStr = formData.startTime;
+                    if (formData.endTime) timeStr += ` - ${formData.endTime}`;
+                    const dateObj = new Date(formData.date);
+                    document.getElementById('reportDateTime').textContent = `${dateObj.getFullYear()}/${dateObj.getMonth() + 1}/${dateObj.getDate()} ${timeStr}`;
+                    
+                    document.getElementById('reportMood').textContent = formData.moodStatus || '未记录';
+                    
+                    let feedingParts = [];
+                    if (formData.feedingTypes.length > 0) feedingParts.push(formData.feedingTypes.join('、'));
+                    if (formData.feedingAmount) feedingParts.push(`${formData.feedingAmount}${formData.feedingUnit}`);
+                    if (formData.eatingDuring) feedingParts.push(formData.eatingDuring);
+                    if (formData.waterChanged) feedingParts.push('已换水');
+                    document.getElementById('reportFeeding').textContent = feedingParts.join(' | ') || '未填写';
+                    
+                    let cleaningParts = [];
+                    if (formData.poopStatus) cleaningParts.push(`排便：${formData.poopStatus}`);
+                    if (formData.urineCount) cleaningParts.push(`尿团：${formData.urineCount}个`);
+                    document.getElementById('reportCleaning').textContent = cleaningParts.join(' | ') || '未填写';
+                    
+                    let envParts = [];
+                    if (formData.doorWindowChecked) envParts.push('门窗✓');
+                    if (formData.utilitiesChecked) envParts.push('水电✓');
+                    if (formData.surroundingCleaned) envParts.push('清洁✓');
+                    if (formData.trashHandled) envParts.push('垃圾✓');
+                    document.getElementById('reportEnvironment').textContent = envParts.join(' | ') || '未检查';
+
+                    if (formData.vomitStatus === '发现呕吐物') {
+                        document.getElementById('reportVomit').textContent = '发现呕吐物';
+                        document.getElementById('reportVomitContainer').classList.remove('hidden');
+                    } else {
+                        document.getElementById('reportVomitContainer').classList.add('hidden');
+                    }
+
+                    if (formData.notes) {
+                        document.getElementById('reportNotes').textContent = formData.notes;
+                        document.getElementById('reportNotesContainer').classList.remove('hidden');
+                    } else {
+                        document.getElementById('reportNotesContainer').classList.add('hidden');
+                    }
+
+                    if (formData.photo) {
+                        document.getElementById('reportPhoto').src = formData.photo;
+                        document.getElementById('reportPhotoContainer').classList.remove('hidden');
+                    } else {
+                        document.getElementById('reportPhotoContainer').classList.add('hidden');
+                    }
+
+                    window.reportData = formData;
+                    window.reportId = reportId;
+
+                    document.getElementById('formPage').classList.add('hidden');
+                    document.getElementById('reportPage').classList.remove('hidden');
+                    window.scrollTo(0, 0);
+
+                } catch (error) {
+                    console.error('保存失败:', error);
+                    alert(translations[currentLang].saveFailed + ': ' + error.message);
+                } finally {
+                    hideLoading();
+                }
+            });
+
+            // 复制链接
+            document.getElementById('copyLinkBtn').addEventListener('click', function() {
+                const linkInput = document.getElementById('shareLink');
+                linkInput.select();
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(linkInput.value).then(() => {
+                        alert('✅ ' + translations[currentLang].linkCopied);
+                    }).catch(() => {
+                        document.execCommand('copy');
+                        alert('✅ ' + translations[currentLang].linkCopied);
+                    });
+                } else {
+                    document.execCommand('copy');
+                    alert('✅ ' + translations[currentLang].linkCopied);
+                }
+            });
+
+            // 复制文字报告
+            document.getElementById('copyTextBtn').addEventListener('click', function() {
+                const data = window.reportData;
+                const dateObj = new Date(data.date);
+                let timeStr = data.startTime;
+                if (data.endTime) timeStr += ` - ${data.endTime}`;
+                
+                let text = `【${translations[currentLang].feedingReport}】\n`;
+                text += `📍 ${data.customerAddress}\n`;
+                text += `👤 ${data.ownerName}\n`;
+                text += `🐾 ${data.petNames.join('、')}\n`;
+                text += `📅 ${dateObj.getFullYear()}/${dateObj.getMonth() + 1}/${dateObj.getDate()} ${timeStr}\n\n`;
+                
+                text += `😺 ${translations[currentLang].petStatus}: ${data.moodStatus || '-'}\n`;
+                if (data.feedingTypes.length > 0) text += `🍽️ ${translations[currentLang].feeding}: ${data.feedingTypes.join('、')}\n`;
+                if (data.feedingAmount) text += `   ${data.feedingAmount}${data.feedingUnit}\n`;
+                if (data.waterChanged) text += `💧 ${translations[currentLang].waterChanged} ✓\n`;
+                if (data.poopStatus) text += `💩 ${data.poopStatus}\n`;
+                if (data.urineCount) text += `   尿团: ${data.urineCount}个\n`;
+                if (data.doorWindowChecked) text += `🏠 ${translations[currentLang].doorWindowChecked} ✓\n`;
+                if (data.notes) text += `\n📝 ${data.notes}`;
+                
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        alert('✅ ' + translations[currentLang].textCopied);
+                    });
+                } else {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    alert('✅ ' + translations[currentLang].textCopied);
+                }
+            });
+
+            // 返回编辑
+            document.getElementById('editBtn').addEventListener('click', function() {
+                document.getElementById('formPage').classList.remove('hidden');
+                document.getElementById('reportPage').classList.add('hidden');
+                window.scrollTo(0, 0);
+            });
+
+            // 新建报告
+            document.getElementById('newReportBtn').addEventListener('click', function() {
+                if (confirm(translations[currentLang].confirmNewReport)) {
+                    document.getElementById('feedingForm').reset();
+                    document.getElementById('serviceDate').valueAsDate = new Date();
+                    const now = new Date();
+                    document.getElementById('serviceStartTime').value = 
+                        now.getHours().toString().padStart(2, '0') + ':' + 
+                        now.getMinutes().toString().padStart(2, '0');
+                    
+                    const container = document.getElementById('petNamesContainer');
+                    container.innerHTML = `
+                        <div class="pet-input-group mb-2">
+                            <div class="pet-input-wrapper">
+                                <input type="text" name="petName" placeholder="请输入宠物昵称" required
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+                    
+                    photos = { main: null, eatingBefore: null, eatingDuring: null, water: null, waste: null };
+                    document.getElementById('photoPreviewContainer').classList.add('hidden');
+                    document.getElementById('eatingBeforePhotoPreview').classList.add('hidden');
+                    document.getElementById('eatingDuringPhotoPreview').classList.add('hidden');
+                    document.getElementById('waterPhotoPreview').classList.add('hidden');
+                    document.getElementById('wastePhotoPreview').classList.add('hidden');
+                    
+                    document.getElementById('vomitDetails').classList.add('hidden');
+                    document.getElementById('playDurationContainer').classList.add('hidden');
+                    document.getElementById('templateHint').classList.add('hidden');
+                    currentTemplate = null;
+                    
+                    document.getElementById('formPage').classList.remove('hidden');
+                    document.getElementById('reportPage').classList.add('hidden');
+                    window.scrollTo(0, 0);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
