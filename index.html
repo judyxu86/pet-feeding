@@ -8,8 +8,7 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <!-- QR Code 生成库 -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
     <style>
         * {
             -webkit-tap-highlight-color: transparent;
@@ -562,7 +561,7 @@
         <div class="bg-white rounded-2xl p-5 card-shadow mb-5 text-center">
             <h3 class="font-semibold text-gray-800 mb-3">📱 分享给客户</h3>
             <div class="qr-container mb-3">
-                <canvas id="qrcode"></canvas>
+                <img id="qrcode" alt="二维码" style="width: 200px; height: 200px;">
             </div>
             <p class="text-sm text-gray-500 mb-3">客户扫码即可查看报告</p>
             <div>
@@ -718,19 +717,11 @@
             document.getElementById('loadingOverlay').classList.add('hidden');
         }
 
-        // 生成二维码
+        // 生成二维码（使用 Google Charts API）
         function generateQRCode(url) {
-            const canvas = document.getElementById('qrcode');
-            QRCode.toCanvas(canvas, url, {
-                width: 200,
-                margin: 2,
-                color: {
-                    dark: '#7c3aed',
-                    light: '#ffffff'
-                }
-            }, function(error) {
-                if (error) console.error(error);
-            });
+            const qrImg = document.getElementById('qrcode');
+            const encodedUrl = encodeURIComponent(url);
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodedUrl}`;
         }
 
         // 表单提交
@@ -784,8 +775,12 @@
                 const shareUrl = `${BASE_URL}/view.html?id=${reportId}`;
                 document.getElementById('shareLink').value = shareUrl;
 
-                // 生成二维码
-                generateQRCode(shareUrl);
+                // 生成二维码（失败也不影响其他功能）
+                try {
+                    generateQRCode(shareUrl);
+                } catch (qrError) {
+                    console.log('二维码生成失败，但不影响使用');
+                }
 
                 // 更新报告页面显示
                 updateReportDisplay(formData);
@@ -801,7 +796,7 @@
 
             } catch (error) {
                 console.error('保存失败:', error);
-                alert('保存失败，请重试');
+                alert('保存失败: ' + error.message);
             } finally {
                 hideLoading();
             }
