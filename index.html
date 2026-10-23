@@ -1347,10 +1347,25 @@
                                 <p class="text-xs text-gray-400">${data.startTime || data.time || ''}</p>
                             </div>
                         </div>
-                        <p class="text-xs text-gray-400 mt-2 truncate">${data.customerAddress || ''}</p>
+                        <div class="flex justify-between items-center mt-2 gap-2">
+                            <p class="text-xs text-gray-400 truncate">${data.customerAddress || ''}</p>
+                            <button type="button" class="history-del text-xs text-red-500 border border-red-300 rounded-lg px-2 py-1 shrink-0">删除</button>
+                        </div>
                     `;
                     card.onclick = () => {
                         window.open(`${BASE_URL}/view.html?id=${doc.id}`, '_blank');
+                    };
+                    card.querySelector('.history-del').onclick = async (e) => {
+                        e.stopPropagation();
+                        const name = data.petNames ? data.petNames.join('、') : '这条记录';
+                        if (!confirm(`确定要删除「${name}」${dateStr} 的记录吗？删除后客户的链接也会失效，无法恢复。`)) return;
+                        try {
+                            await db.collection('reports').doc(doc.id).delete();
+                            card.remove();
+                            if (!listEl.children.length) emptyEl.classList.remove('hidden');
+                        } catch (err) {
+                            alert('删除失败，请稍后再试');
+                        }
                     };
                     listEl.appendChild(card);
                 });
