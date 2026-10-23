@@ -107,6 +107,8 @@
     </style>
 </head>
 <body class="container-padding">
+    <a id="backToApp" href="index.html#history" style="display:none;position:fixed;top:12px;left:12px;z-index:50;background:#fff;color:#7e22ce;border:1px solid #d8b4fe;border-radius:999px;padding:6px 14px;font-size:14px;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.08)">← 返回历史记录</a>
+    <script>if (new URLSearchParams(location.search).get('from') === 'history') document.getElementById('backToApp').style.display = 'inline-block';</script>
     <!-- 加载中 -->
     <div id="loadingPage" class="max-w-md mx-auto">
         <div class="loading-container">

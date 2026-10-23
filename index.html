@@ -1353,7 +1353,7 @@
                         </div>
                     `;
                     card.onclick = () => {
-                        window.open(`${BASE_URL}/view.html?id=${doc.id}`, '_blank');
+                        window.location.href = `${BASE_URL}/view.html?id=${doc.id}&from=history`;
                     };
                     card.querySelector('.history-del').onclick = async (e) => {
                         e.stopPropagation();
@@ -1548,6 +1548,7 @@
 
             // 设置语言
             switchLanguage(currentLang);
+            if (location.hash === '#history') { switchPage('history'); history.replaceState(null, '', location.pathname); }
 
             // 设置默认日期时间
             document.getElementById('serviceDate').valueAsDate = new Date();
