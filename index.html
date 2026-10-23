@@ -1210,6 +1210,7 @@
         auth.onAuthStateChanged(function(user) {
             document.getElementById('loginPage').classList.toggle('hidden', !!user);
             document.getElementById('mainApp').classList.toggle('hidden', !user);
+            if (user && location.hash === '#history') { history.replaceState(null, '', location.pathname); switchPage('history'); }
         });
 
         document.getElementById('loginPassword').addEventListener('keypress', function(e) {
@@ -1548,7 +1549,6 @@
 
             // 设置语言
             switchLanguage(currentLang);
-            if (location.hash === '#history') { switchPage('history'); history.replaceState(null, '', location.pathname); }
 
             // 设置默认日期时间
             document.getElementById('serviceDate').valueAsDate = new Date();
