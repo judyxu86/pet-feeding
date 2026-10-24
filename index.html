@@ -12,7 +12,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="喂养小助手">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="theme-color" content="#f5e6ff">
+    <meta name="theme-color" content="#ecd6f0">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -25,9 +25,18 @@
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(135deg, #f5e6ff 0%, #fff5e6 100%);
+            background: #ecd6f0;
             min-height: 100vh;
             padding-bottom: 2rem;
+        }
+        /* Sunset background: icon lilac at the top → soft rose → sunset orange-pink at the bottom.
+           Fixed to the screen so the whole sunset is always visible while scrolling (works on iPhone too). */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1;
+            background: linear-gradient(180deg, #ecd6f0 0%, #f6d4e3 50%, #ffcaa8 100%);
         }
         .card-shadow {
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
