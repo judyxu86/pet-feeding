@@ -291,6 +291,17 @@
             background: #7c3aed;
             color: white;
         }
+        /* Phones: give the switch its own strip at the top so it never covers page titles */
+        @media (max-width: 640px) {
+            body {
+                padding-top: 2.75rem;
+            }
+            .lang-switch {
+                position: absolute;
+                top: 0.6rem;
+                right: 0.75rem;
+            }
+        }
     </style>
 </head>
 <body class="container-padding">
