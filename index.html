@@ -1141,6 +1141,7 @@
                 navHistory: "历史",
                 navTemplates: "客户",
                 addPhoto: "添加照片",
+                takePhoto: "拍照",
                 delete: "删除",
                 usingTemplate: "已填入客户：",
                 clear: "清除",
@@ -1246,6 +1247,7 @@
                 navHistory: "History",
                 navTemplates: "Clients",
                 addPhoto: "Add Photo",
+                takePhoto: "Camera",
                 delete: "Delete",
                 usingTemplate: "Filled in client:",
                 clear: "Clear",
@@ -1345,16 +1347,60 @@
             vomit: null
         };
 
+        // 每个照片框的处理函数（按文件输入框 id 存），"添加照片"和"拍照"共用
+        const photoHandlers = {};
+
         function setupPhotoInput(inputId, previewId, photoId, photoKey) {
+            photoHandlers[inputId] = function(file) {
+                compressImage(file).then(function(dataUrl) {
+                    photos[photoKey] = dataUrl;
+                    document.getElementById(photoId).src = dataUrl;
+                    document.getElementById(previewId).classList.remove('hidden');
+                }).catch(function() { alert('照片读取失败，请换一张试试'); });
+            };
             document.getElementById(inputId).addEventListener('change', function(e) {
                 const file = e.target.files[0];
-                if (file) {
-                    compressImage(file).then(function(dataUrl) {
-                        photos[photoKey] = dataUrl;
-                        document.getElementById(photoId).src = dataUrl;
-                        document.getElementById(previewId).classList.remove('hidden');
-                    }).catch(function() { alert('照片读取失败，请换一张试试'); });
-                }
+                if (file) photoHandlers[inputId](file);
+            });
+        }
+
+        // 在每个"添加照片"按钮前面加一个"拍照"按钮：手机上直接打开相机，不用先选菜单
+        function addCameraButtons() {
+            const inputIds = ['eatingBeforePhotoInput', 'eatingDuringPhotoInput', 'waterPhotoInput',
+                              'wastePhotoInput', 'vomitPhotoInput', 'photoInput'];
+            inputIds.forEach(function(inputId) {
+                const albumInput = document.getElementById(inputId);
+                const albumBtn = inputId === 'photoInput'
+                    ? document.getElementById('uploadPhotoBtn')
+                    : albumInput.nextElementSibling;
+                const isWide = albumBtn.classList.contains('w-full');
+
+                const cameraInput = document.createElement('input');
+                cameraInput.type = 'file';
+                cameraInput.accept = 'image/*';
+                cameraInput.setAttribute('capture', 'environment');
+                cameraInput.className = 'hidden';
+                cameraInput.addEventListener('change', function() {
+                    const file = cameraInput.files[0];
+                    if (file) photoHandlers[inputId](file);
+                    cameraInput.value = '';
+                });
+
+                const cameraBtn = document.createElement('button');
+                cameraBtn.type = 'button';
+                cameraBtn.className = (isWide
+                    ? 'flex-1 px-4 py-3 rounded-xl'
+                    : 'small-photo-btn') + ' camera-btn border-2 border-purple-400 bg-purple-100 text-purple-700 font-medium transition-all';
+                cameraBtn.innerHTML = '📸 <span data-i18n="takePhoto">' + translations[currentLang].takePhoto + '</span>';
+                cameraBtn.addEventListener('click', function() { cameraInput.click(); });
+
+                const row = document.createElement('div');
+                row.className = 'flex gap-2' + (isWide ? '' : ' flex-wrap');
+                albumBtn.parentNode.insertBefore(row, albumBtn);
+                if (isWide) albumBtn.classList.replace('w-full', 'flex-1');
+                row.appendChild(cameraBtn);
+                row.appendChild(albumBtn);
+                row.appendChild(cameraInput);
             });
         }
 
@@ -1662,17 +1708,20 @@
                 document.getElementById('photoInput').click();
             });
 
+            photoHandlers['photoInput'] = function(file) {
+                compressImage(file).then(function(dataUrl) {
+                    photos.main = dataUrl;
+                    document.getElementById('photoPreview').src = photos.main;
+                    document.getElementById('photoPreviewContainer').classList.remove('hidden');
+                    document.getElementById('uploadPhotoBtn').innerHTML = '📷 更换照片';
+                }).catch(function() { alert('照片读取失败，请换一张试试'); });
+            };
             document.getElementById('photoInput').addEventListener('change', function(e) {
                 const file = e.target.files[0];
-                if (file) {
-                    compressImage(file).then(function(dataUrl) {
-                        photos.main = dataUrl;
-                        document.getElementById('photoPreview').src = photos.main;
-                        document.getElementById('photoPreviewContainer').classList.remove('hidden');
-                        document.getElementById('uploadPhotoBtn').innerHTML = '📷 更换照片';
-                    }).catch(function() { alert('照片读取失败，请换一张试试'); });
-                }
+                if (file) photoHandlers['photoInput'](file);
             });
+
+            addCameraButtons();
 
             document.getElementById('removePhotoBtn').addEventListener('click', function() {
                 removePhoto('main');
