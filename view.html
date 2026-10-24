@@ -247,7 +247,7 @@
             </h3>
             <div id="feedingContent">
                 <div class="info-row" id="feedingTypeRow">
-                    <span class="info-label">喂食类型</span>
+                    <span class="info-label">喂食</span>
                     <span class="info-value" id="feedingTypes"></span>
                 </div>
                 <div class="info-row" id="feedingAmountRow">
@@ -462,7 +462,14 @@
 
             // 饮食
             if (data.feedingTypes && data.feedingTypes.length > 0) {
-                document.getElementById('feedingTypes').textContent = data.feedingTypes.join('、');
+                // One food per line, e.g. "干粮(Purina) 20g"
+                const typesEl = document.getElementById('feedingTypes');
+                typesEl.textContent = '';
+                data.feedingTypes.forEach(t => {
+                    const line = document.createElement('div');
+                    line.textContent = t;
+                    typesEl.appendChild(line);
+                });
             } else {
                 document.getElementById('feedingTypeRow').classList.add('hidden');
             }

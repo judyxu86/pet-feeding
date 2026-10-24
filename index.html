@@ -154,16 +154,28 @@
         .feeding-type-row {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            flex-wrap: wrap;
+            gap: 0.4rem;
         }
         .feeding-type-row .checkbox-wrapper {
             flex-shrink: 0;
         }
         .feeding-type-row input[type="text"] {
             flex: 1;
-            min-width: 100px;
+            min-width: 0;
             padding: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .feeding-type-row input[type="number"] {
+            width: 3.6rem;
+            flex-shrink: 0;
+            padding: 0.5rem 0.4rem;
+            font-size: 0.875rem;
+            text-align: center;
+        }
+        .feeding-type-row select {
+            width: 3.4rem;
+            flex-shrink: 0;
+            padding: 0.5rem 0.2rem;
             font-size: 0.875rem;
         }
         .small-photo-btn {
@@ -457,6 +469,11 @@
                                     </div>
                                     <input type="text" id="feedingBrandDry" placeholder="品牌"
                                         class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 text-sm bg-white">
+                                    <input type="number" id="feedingAmountDry" placeholder="数量" min="0" step="any" inputmode="decimal"
+                                        class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                                    <select id="feedingUnitDry" class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                                        <option value="g" selected>g</option><option value="份">份</option><option value="包">包</option><option value="罐">罐</option><option value="根">根</option>
+                                    </select>
                                 </div>
                                 <div class="feeding-type-row">
                                     <div class="checkbox-wrapper">
@@ -468,6 +485,11 @@
                                     </div>
                                     <input type="text" id="feedingBrandWet" placeholder="品牌"
                                         class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 text-sm bg-white">
+                                    <input type="number" id="feedingAmountWet" placeholder="数量" min="0" step="any" inputmode="decimal"
+                                        class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                                    <select id="feedingUnitWet" class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                                        <option value="g">g</option><option value="份">份</option><option value="包" selected>包</option><option value="罐">罐</option><option value="根">根</option>
+                                    </select>
                                 </div>
                                 <div class="feeding-type-row">
                                     <div class="checkbox-wrapper">
@@ -479,6 +501,11 @@
                                     </div>
                                     <input type="text" id="feedingBrandCan" placeholder="品牌"
                                         class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 text-sm bg-white">
+                                    <input type="number" id="feedingAmountCan" placeholder="数量" min="0" step="any" inputmode="decimal"
+                                        class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                                    <select id="feedingUnitCan" class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                                        <option value="g">g</option><option value="份">份</option><option value="包">包</option><option value="罐" selected>罐</option><option value="根">根</option>
+                                    </select>
                                 </div>
                                 <div class="feeding-type-row">
                                     <div class="checkbox-wrapper">
@@ -490,21 +517,12 @@
                                     </div>
                                     <input type="text" id="feedingBrandSnack" placeholder="品牌"
                                         class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 text-sm bg-white">
+                                    <input type="number" id="feedingAmountSnack" placeholder="数量" min="0" step="any" inputmode="decimal"
+                                        class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                                    <select id="feedingUnitSnack" class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                                        <option value="g">g</option><option value="份">份</option><option value="包">包</option><option value="罐">罐</option><option value="根" selected>根</option>
+                                    </select>
                                 </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="feedingAmount">喂食量</label>
-                            <div class="flex gap-2 items-center">
-                                <input type="number" id="feedingAmount" placeholder="数量" min="0" step="any"
-                                    class="flex-1 px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
-                                <select id="feedingUnit" class="px-3 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white" style="min-width: 80px;">
-                                    <option value="g">g</option>
-                                    <option value="份">份</option>
-                                    <option value="包">包</option>
-                                    <option value="罐">罐</option>
-                                </select>
                             </div>
                         </div>
 
@@ -1560,27 +1578,30 @@
             return Array.from(checkboxes).map(cb => cb.value);
         }
 
+        // Each food type row: checkbox, brand, amount, unit (ids end in Dry/Wet/Can/Snack)
+        const FEEDING_KINDS = [['Dry', '干粮'], ['Wet', '湿粮'], ['Can', '罐头'], ['Snack', '零食']];
+
+        function getFeedingItems() {
+            return FEEDING_KINDS
+                .filter(([key]) => document.getElementById('feedingType' + key).checked)
+                .map(([key, name]) => ({
+                    type: name,
+                    brand: document.getElementById('feedingBrand' + key).value.trim(),
+                    amount: document.getElementById('feedingAmount' + key).value.trim(),
+                    unit: document.getElementById('feedingUnit' + key).value
+                }));
+        }
+
+        // e.g. "干粮(Purina) 20g" — the text shown on reports
+        function feedingItemText(item) {
+            let text = item.type;
+            if (item.brand) text += `(${item.brand})`;
+            if (item.amount) text += ` ${item.amount}${item.unit}`;
+            return text;
+        }
+
         function getFeedingTypesWithBrands() {
-            const types = [];
-            const typeMap = {
-                'Dry': { id: 'feedingTypeDry', brandId: 'feedingBrandDry', name: '干粮' },
-                'Wet': { id: 'feedingTypeWet', brandId: 'feedingBrandWet', name: '湿粮' },
-                'Can': { id: 'feedingTypeCan', brandId: 'feedingBrandCan', name: '罐头' },
-                'Snack': { id: 'feedingTypeSnack', brandId: 'feedingBrandSnack', name: '零食' }
-            };
-            
-            for (const key in typeMap) {
-                const checkbox = document.getElementById(typeMap[key].id);
-                const brandInput = document.getElementById(typeMap[key].brandId);
-                if (checkbox.checked) {
-                    let typeStr = typeMap[key].name;
-                    if (brandInput.value.trim()) {
-                        typeStr += `(${brandInput.value.trim()})`;
-                    }
-                    types.push(typeStr);
-                }
-            }
-            return types;
+            return getFeedingItems().map(feedingItemText);
         }
 
         function showLoading() {
@@ -1680,6 +1701,16 @@
                 });
             });
 
+            // 喂食：填了品牌或数量就自动勾选这一项
+            FEEDING_KINDS.forEach(([key]) => {
+                const box = document.getElementById('feedingType' + key);
+                ['feedingBrand', 'feedingAmount'].forEach(prefix => {
+                    document.getElementById(prefix + key).addEventListener('input', function() {
+                        if (this.value.trim()) box.checked = true;
+                    });
+                });
+            });
+
             // 陪玩时长
             document.getElementById('playInteraction').addEventListener('change', function() {
                 document.getElementById('playDurationContainer').classList.toggle('hidden', !this.checked);
@@ -1703,8 +1734,7 @@
                     petNames: petNames,
                     bowlCleaned: document.getElementById('bowlCleaned').checked,
                     feedingTypes: getFeedingTypesWithBrands(),
-                    feedingAmount: document.getElementById('feedingAmount').value,
-                    feedingUnit: document.getElementById('feedingUnit').value,
+                    feedingItems: getFeedingItems(),
                     eatingBefore: getToggleValue('eatingBefore'),
                     eatingBeforePhoto: photos.eatingBefore,
                     eatingDuring: getToggleValue('eatingDuring'),
@@ -1778,7 +1808,6 @@
                     
                     let feedingParts = [];
                     if (formData.feedingTypes.length > 0) feedingParts.push(formData.feedingTypes.join('、'));
-                    if (formData.feedingAmount) feedingParts.push(`${formData.feedingAmount}${formData.feedingUnit}`);
                     if (formData.eatingDuring) feedingParts.push(formData.eatingDuring);
                     if (formData.waterChanged) feedingParts.push('已换水');
                     document.getElementById('reportFeeding').textContent = feedingParts.join(' | ') || '未填写';
@@ -1863,7 +1892,7 @@
                 
                 text += `😺 ${translations[currentLang].petStatus}: ${data.moodStatus || '-'}\n`;
                 if (data.feedingTypes.length > 0) text += `🍽️ ${translations[currentLang].feeding}: ${data.feedingTypes.join('、')}\n`;
-                if (data.feedingAmount) text += `   ${data.feedingAmount}${data.feedingUnit}\n`;
+                if (data.feedingAmount) text += `   ${data.feedingAmount}${data.feedingUnit || ''}\n`;
                 if (data.waterChanged) text += `💧 ${translations[currentLang].waterChanged} ✓\n`;
                 if (data.poopStatus) text += `💩 ${data.poopStatus}\n`;
                 if (data.urineCount) text += `   尿团: ${data.urineCount}个\n`;
