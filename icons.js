@@ -77,7 +77,26 @@
         '<path d="M7.5 32 Q13 26.5 18.5 32" fill="' + HOT_PINK + '" stroke="' + LINE + '" stroke-width="1.4" stroke-linejoin="round"/>' +
         '<path d="M22 19 H32 M22 24 H29.5 M22 29 H27" stroke="#e9b98c" stroke-width="2.2" stroke-linecap="round"/>';
 
+    // Camera button: cream camera with pink cat ears and a pink lens
+    var camera =
+        '<path d="M6.5 13 L7.5 4.5 L14 11 Z" fill="' + PINK + '" stroke="' + LINE + '" stroke-width="2" stroke-linejoin="round"/>' +
+        '<path d="M33.5 13 L32.5 4.5 L26 11 Z" fill="' + PINK + '" stroke="' + LINE + '" stroke-width="2" stroke-linejoin="round"/>' +
+        '<rect x="4" y="10.5" width="32" height="24" rx="5.5" fill="' + SKIN + '" stroke="' + LINE + '" stroke-width="2"/>' +
+        '<circle cx="20" cy="22.5" r="7.2" fill="#fff" stroke="' + LINE + '" stroke-width="2"/>' +
+        '<circle cx="20" cy="22.5" r="3.8" fill="' + PINK + '"/>' +
+        '<circle cx="18.5" cy="21" r="1.2" fill="#fff"/>' +
+        '<circle cx="30.5" cy="15.5" r="1.7" fill="' + HOT_PINK + '"/>';
+
+    // Album button: little picture frame with pink hills and a heart
+    var album =
+        '<rect x="4" y="7" width="32" height="26" rx="5" fill="#fffaf3"/>' +
+        '<path d="M5 32 L14.5 21.5 L21 28 L25.5 23.5 L35 32 Z" fill="' + PINK + '" stroke="' + LINE + '" stroke-width="1.6" stroke-linejoin="round"/>' +
+        '<path d="M26.5 16.8 Q24.6 14.4 26.5 13.4 Q27.6 12.9 28 14.2 Q28.4 12.9 29.5 13.4 Q31.4 14.4 29.5 16.8 L28 18.4 Z" fill="' + HOT_PINK + '"/>' +
+        '<rect x="4" y="7" width="32" height="26" rx="5" fill="none" stroke="' + LINE + '" stroke-width="2"/>';
+
     window.SSIcons = {
+        camera: function (size) { return svg(camera, size); },
+        album: function (size) { return svg(album, size); },
         girl: function (size) { return svg(girl, size); },
         boy: function (size) { return svg(boy, size); },
         house: function (size) { return svg(house, size); },

@@ -8,7 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="icons.js?v=3"></script>
+    <script src="icons.js?v=4"></script>
     <style>
         * {
             -webkit-tap-highlight-color: transparent;
@@ -182,6 +182,45 @@
             padding: 0.5rem 1rem;
             font-size: 0.75rem;
             border-radius: 0.75rem;
+        }
+        /* 照片按钮：每处都是一样的两个按钮（拍照 + 相册），同宽同高 */
+        .photo-btn-row {
+            display: flex;
+            gap: 0.6rem;
+            width: 100%;
+        }
+        .photo-btn-row + div {
+            margin-top: 0.6rem;
+        }
+        .photo-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            height: 46px;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+        }
+        .photo-btn:active {
+            transform: scale(0.97);
+        }
+        .photo-btn.camera {
+            background: linear-gradient(135deg, #f3e8ff 0%, #fce7f3 100%);
+            border: 2px solid #d8b4fe;
+            color: #7e22ce;
+            box-shadow: 0 3px 10px rgba(168, 85, 247, 0.15);
+        }
+        .photo-btn.album {
+            background: #fff;
+            border: 2px dashed #e9d5ff;
+            color: #9333ea;
+        }
+        .photo-btn.album:hover {
+            background: #faf5ff;
         }
         .small-photo-preview {
             width: 100%;
@@ -1142,6 +1181,8 @@
                 navTemplates: "客户",
                 addPhoto: "添加照片",
                 takePhoto: "拍照",
+                fromAlbum: "相册",
+                changePhoto: "换一张",
                 delete: "删除",
                 usingTemplate: "已填入客户：",
                 clear: "清除",
@@ -1248,6 +1289,8 @@
                 navTemplates: "Clients",
                 addPhoto: "Add Photo",
                 takePhoto: "Camera",
+                fromAlbum: "Album",
+                changePhoto: "Change",
                 delete: "Delete",
                 usingTemplate: "Filled in client:",
                 clear: "Clear",
@@ -1364,7 +1407,12 @@
             });
         }
 
-        // 在每个"添加照片"按钮前面加一个"拍照"按钮：手机上直接打开相机，不用先选菜单
+        // 相册按钮上的文字（图标 + "相册"）
+        function albumBtnHtml(labelKey) {
+            return SSIcons.album(20) + '<span data-i18n="' + labelKey + '">' + translations[currentLang][labelKey] + '</span>';
+        }
+
+        // 每个照片框都变成同样的两个按钮：「拍照」（手机上直接打开相机）+「相册」
         function addCameraButtons() {
             const inputIds = ['eatingBeforePhotoInput', 'eatingDuringPhotoInput', 'waterPhotoInput',
                               'wastePhotoInput', 'vomitPhotoInput', 'photoInput'];
@@ -1373,7 +1421,8 @@
                 const albumBtn = inputId === 'photoInput'
                     ? document.getElementById('uploadPhotoBtn')
                     : albumInput.nextElementSibling;
-                const isWide = albumBtn.classList.contains('w-full');
+                albumBtn.className = 'photo-btn album';
+                albumBtn.innerHTML = albumBtnHtml('fromAlbum');
 
                 const cameraInput = document.createElement('input');
                 cameraInput.type = 'file';
@@ -1388,16 +1437,13 @@
 
                 const cameraBtn = document.createElement('button');
                 cameraBtn.type = 'button';
-                cameraBtn.className = (isWide
-                    ? 'flex-1 px-4 py-3 rounded-xl'
-                    : 'small-photo-btn') + ' camera-btn border-2 border-purple-400 bg-purple-100 text-purple-700 font-medium transition-all';
-                cameraBtn.innerHTML = '📸 <span data-i18n="takePhoto">' + translations[currentLang].takePhoto + '</span>';
+                cameraBtn.className = 'photo-btn camera camera-btn';
+                cameraBtn.innerHTML = SSIcons.camera(20) + '<span data-i18n="takePhoto">' + translations[currentLang].takePhoto + '</span>';
                 cameraBtn.addEventListener('click', function() { cameraInput.click(); });
 
                 const row = document.createElement('div');
-                row.className = 'flex gap-2' + (isWide ? '' : ' flex-wrap');
+                row.className = 'photo-btn-row';
                 albumBtn.parentNode.insertBefore(row, albumBtn);
-                if (isWide) albumBtn.classList.replace('w-full', 'flex-1');
                 row.appendChild(cameraBtn);
                 row.appendChild(albumBtn);
                 row.appendChild(cameraInput);
@@ -1408,7 +1454,7 @@
             photos[photoKey] = null;
             if (photoKey === 'main') {
                 document.getElementById('photoPreviewContainer').classList.add('hidden');
-                document.getElementById('uploadPhotoBtn').innerHTML = '📷 <span data-i18n="clickToUpload">' + translations[currentLang].clickToUpload + '</span>';
+                document.getElementById('uploadPhotoBtn').innerHTML = albumBtnHtml('fromAlbum');
                 document.getElementById('photoInput').value = '';
             } else {
                 document.getElementById(photoKey + 'PhotoPreview').classList.add('hidden');
@@ -1713,7 +1759,7 @@
                     photos.main = dataUrl;
                     document.getElementById('photoPreview').src = photos.main;
                     document.getElementById('photoPreviewContainer').classList.remove('hidden');
-                    document.getElementById('uploadPhotoBtn').innerHTML = '📷 更换照片';
+                    document.getElementById('uploadPhotoBtn').innerHTML = albumBtnHtml('changePhoto');
                 }).catch(function() { alert('照片读取失败，请换一张试试'); });
             };
             document.getElementById('photoInput').addEventListener('change', function(e) {
