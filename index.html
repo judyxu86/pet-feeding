@@ -457,7 +457,7 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-3" data-i18n="feedingType">喂食类型</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-3" data-i18n="feedingType">喂食种类/量</label>
                             <div class="space-y-3">
                                 <div class="feeding-type-row">
                                     <div class="checkbox-wrapper">
@@ -767,6 +767,18 @@
                                 <input type="text" id="vomitNotes" placeholder="描述呕吐物情况"
                                     class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
                             </div>
+                            <!-- 呕吐物照片 -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="vomitPhoto">呕吐物照片</label>
+                                <input type="file" id="vomitPhotoInput" accept="image/*" class="hidden">
+                                <button type="button" class="w-full px-4 py-2 rounded-xl border-2 border-dashed border-purple-300 text-purple-600 hover:bg-purple-50 transition-all text-sm" onclick="document.getElementById('vomitPhotoInput').click()">
+                                    📷 <span data-i18n="uploadVomitPhoto">上传呕吐物照片</span>
+                                </button>
+                                <div id="vomitPhotoPreview" class="hidden mt-2">
+                                    <img id="vomitPhoto" class="small-photo-preview">
+                                    <button type="button" class="text-red-500 text-xs mt-1" onclick="removePhoto('vomit')" data-i18n="delete">删除</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -811,7 +823,7 @@
                 <!-- 照片上传 -->
                 <div class="bg-white rounded-2xl p-5 card-shadow">
                     <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                        <span class="mr-2">📷</span> <span data-i18n="photoRecord">拍照记录</span>
+                        <span class="mr-2">📷</span> <span data-i18n="photoRecord">今日精选可爱瞬间</span>
                     </h2>
                     <div class="space-y-4">
                         <input type="file" id="photoInput" accept="image/*" class="hidden">
@@ -1057,7 +1069,7 @@
                 addPet: "添加宠物",
                 feeding: "饮食照料",
                 bowlCleaned: "粮碗/水碗清洗",
-                feedingType: "喂食类型",
+                feedingType: "喂食种类/量",
                 dryFood: "干粮",
                 wetFood: "湿粮",
                 cannedFood: "罐头",
@@ -1084,6 +1096,8 @@
                 urineAbnormal: "尿团异常",
                 urineNotes: "尿团备注",
                 wastePhoto: "排泄物照片",
+                vomitPhoto: "呕吐物照片",
+                uploadVomitPhoto: "上传呕吐物照片",
                 uploadWastePhoto: "上传粑粑/尿团照片",
                 vomit: "呕吐情况",
                 vomitType: "呕吐物类型",
@@ -1097,7 +1111,7 @@
                 utilitiesChecked: "水电/空调已复原",
                 surroundingCleaned: "周边清洁/补砂",
                 trashHandled: "垃圾已处理",
-                photoRecord: "拍照记录",
+                photoRecord: "今日精选可爱瞬间",
                 clickToUpload: "点击上传照片",
                 deletePhoto: "删除照片",
                 otherNotes: "其他备注",
@@ -1160,7 +1174,7 @@
                 addPet: "Add Pet",
                 feeding: "Feeding",
                 bowlCleaned: "Bowl Cleaned",
-                feedingType: "Food Type",
+                feedingType: "Food & Amount",
                 dryFood: "Dry Food",
                 wetFood: "Wet Food",
                 cannedFood: "Canned Food",
@@ -1187,6 +1201,8 @@
                 urineAbnormal: "Abnormal",
                 urineNotes: "Urine Notes",
                 wastePhoto: "Waste Photo",
+                vomitPhoto: "Vomit Photo",
+                uploadVomitPhoto: "Upload vomit photo",
                 uploadWastePhoto: "Upload Waste Photo",
                 vomit: "Vomit",
                 vomitType: "Vomit Type",
@@ -1200,7 +1216,7 @@
                 utilitiesChecked: "Utilities Restored",
                 surroundingCleaned: "Area Cleaned",
                 trashHandled: "Trash Handled",
-                photoRecord: "Photo",
+                photoRecord: "Today's Cutest Moment",
                 clickToUpload: "Click to Upload",
                 deletePhoto: "Delete Photo",
                 otherNotes: "Other Notes",
@@ -1287,8 +1303,9 @@
         });
 
         // ==================== 照片处理 ====================
-        // 自动压缩照片：缩小尺寸并降低质量，保证每张约 150KB 以内（数据库每条记录上限 1MB，最多 5 张照片）
-        function compressImage(file, maxSize = 1200, targetBytes = 150 * 1024) {
+        // 自动压缩照片：缩小尺寸并降低质量，每张约 110KB 以内。
+        // 照片以文字形式（base64，会变大约 1/3）存进数据库，每条记录上限 1MB，最多 6 张照片 → 6 × 约147KB ≈ 880KB。
+        function compressImage(file, maxSize = 1200, targetBytes = 110 * 1024) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onerror = reject;
@@ -1324,7 +1341,8 @@
             eatingBefore: null,
             eatingDuring: null,
             water: null,
-            waste: null
+            waste: null,
+            vomit: null
         };
 
         function setupPhotoInput(inputId, previewId, photoId, photoKey) {
@@ -1637,6 +1655,7 @@
             setupPhotoInput('eatingDuringPhotoInput', 'eatingDuringPhotoPreview', 'eatingDuringPhoto', 'eatingDuring');
             setupPhotoInput('waterPhotoInput', 'waterPhotoPreview', 'waterPhoto', 'water');
             setupPhotoInput('wastePhotoInput', 'wastePhotoPreview', 'wastePhoto', 'waste');
+            setupPhotoInput('vomitPhotoInput', 'vomitPhotoPreview', 'vomitPhoto', 'vomit');
 
             // 主照片上传
             document.getElementById('uploadPhotoBtn').addEventListener('click', function() {
@@ -1758,6 +1777,7 @@
                     vomitStatus: getToggleValue('vomit'),
                     vomitTypes: getCheckedValues('vomitType'),
                     vomitNotes: document.getElementById('vomitNotes').value,
+                    vomitPhoto: getToggleValue('vomit') === '发现呕吐物' ? photos.vomit : null,
                     doorWindowChecked: document.getElementById('doorWindowChecked').checked,
                     utilitiesChecked: document.getElementById('utilitiesChecked').checked,
                     surroundingCleaned: document.getElementById('surroundingCleaned').checked,
@@ -1766,6 +1786,15 @@
                     notes: document.getElementById('notes').value,
                     createdAt: new Date().toISOString()
                 };
+
+                // 数据库每条记录上限约 1MB：太大就提醒，而不是保存失败
+                if (JSON.stringify(formData).length > 1000000) {
+                    hideLoading();
+                    alert(currentLang === 'en'
+                        ? 'This report has too many large photos to save. Please remove one photo and try again.'
+                        : '照片太多太大，报告存不下。请删除一张照片后再试。');
+                    return;
+                }
 
                 try {
                     // 保存报告
@@ -1943,7 +1972,8 @@
                     
                     document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
                     
-                    photos = { main: null, eatingBefore: null, eatingDuring: null, water: null, waste: null };
+                    photos = { main: null, eatingBefore: null, eatingDuring: null, water: null, waste: null, vomit: null };
+                    document.getElementById('vomitPhotoPreview').classList.add('hidden');
                     document.getElementById('photoPreviewContainer').classList.add('hidden');
                     document.getElementById('eatingBeforePhotoPreview').classList.add('hidden');
                     document.getElementById('eatingDuringPhotoPreview').classList.add('hidden');
