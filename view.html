@@ -19,6 +19,24 @@
             min-height: 100vh;
             padding-bottom: 2rem;
         }
+        .cute-cat {
+            width: 96px;
+            animation: cat-bob 3s ease-in-out infinite;
+            filter: drop-shadow(0 6px 8px rgba(139, 90, 60, 0.15));
+        }
+        .cat-eye {
+            transform-box: fill-box;
+            transform-origin: center;
+            animation: cat-blink 4s infinite;
+        }
+        @keyframes cat-bob {
+            0%, 100% { transform: translateY(0) rotate(-2deg); }
+            50% { transform: translateY(-4px) rotate(2deg); }
+        }
+        @keyframes cat-blink {
+            0%, 92%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.1); }
+        }
         .card-shadow {
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
@@ -134,9 +152,34 @@
     <div id="reportPage" class="max-w-md mx-auto pt-6 hidden">
         <!-- 头部 -->
         <div class="text-center mb-6">
-            <div class="text-5xl mb-3">🐱</div>
-            <h1 class="text-2xl font-bold text-gray-800 mb-1">喂养报告</h1>
-            <p class="text-gray-500 text-sm">来自上门喂养小助手</p>
+            <div class="cute-cat mx-auto mb-3" aria-hidden="true">
+                <svg viewBox="0 0 120 110" width="96" height="88">
+                    <!-- ears -->
+                    <path d="M22 46 L26 10 Q28 4 34 8 L54 26 Z" fill="#fcd9b6" stroke="#8b5a3c" stroke-width="3" stroke-linejoin="round"/>
+                    <path d="M98 46 L94 10 Q92 4 86 8 L66 26 Z" fill="#fcd9b6" stroke="#8b5a3c" stroke-width="3" stroke-linejoin="round"/>
+                    <path d="M29 34 L31 17 L44 28 Z" fill="#f9a8d4"/>
+                    <path d="M91 34 L89 17 L76 28 Z" fill="#f9a8d4"/>
+                    <!-- face -->
+                    <ellipse cx="60" cy="62" rx="46" ry="40" fill="#fde7cf" stroke="#8b5a3c" stroke-width="3"/>
+                    <!-- forehead stripes -->
+                    <path d="M52 26 Q54 33 52 38 M60 24 L60 36 M68 26 Q66 33 68 38" stroke="#e9b98c" stroke-width="3" stroke-linecap="round" fill="none"/>
+                    <!-- eyes -->
+                    <ellipse class="cat-eye" cx="42" cy="60" rx="6.5" ry="8" fill="#3b2a20"/>
+                    <ellipse class="cat-eye" cx="78" cy="60" rx="6.5" ry="8" fill="#3b2a20"/>
+                    <circle cx="44.5" cy="56.5" r="2.6" fill="#fff"/>
+                    <circle cx="80.5" cy="56.5" r="2.6" fill="#fff"/>
+                    <!-- blush -->
+                    <ellipse cx="30" cy="74" rx="8" ry="5" fill="#f9a8d4" opacity=".7"/>
+                    <ellipse cx="90" cy="74" rx="8" ry="5" fill="#f9a8d4" opacity=".7"/>
+                    <!-- nose + mouth -->
+                    <path d="M56 70 Q60 67 64 70 Q60 75 56 70 Z" fill="#f472b6"/>
+                    <path d="M60 74 Q60 80 54 80 M60 74 Q60 80 66 80" stroke="#8b5a3c" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                    <!-- whiskers -->
+                    <path d="M18 66 L4 63 M18 72 L4 74 M102 66 L116 63 M102 72 L116 74" stroke="#8b5a3c" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-800 mb-1" id="headerTitle">喂养报告</h1>
+            <p class="text-gray-500 text-sm">来自Amber的每日记录</p>
         </div>
 
         <!-- 基本信息卡片 -->
@@ -368,7 +411,10 @@
 
         function displayReport(data) {
             // 基本信息
-            document.getElementById('reportPets').textContent = data.petNames.join(' & ');
+            const petNames = data.petNames.join(' & ');
+            document.getElementById('reportPets').textContent = petNames;
+            document.getElementById('headerTitle').textContent = petNames + '的喂养报告';
+            document.title = petNames + '的喂养报告 - 来自Amber';
             document.getElementById('reportAddress').textContent = data.customerAddress;
             document.getElementById('reportOwner').textContent = data.ownerName;
             
