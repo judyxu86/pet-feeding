@@ -184,30 +184,57 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: white;
-            border-top: 1px solid #e5e7eb;
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid #f3e8ff;
+            border-radius: 22px 22px 0 0;
+            box-shadow: 0 -6px 24px rgba(139, 90, 60, 0.08);
             display: flex;
-            justify-content: space-around;
-            padding: 0.5rem 0;
-            padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+            justify-content: center;
+            padding: 0.45rem 0.5rem;
+            padding-bottom: max(0.45rem, env(safe-area-inset-bottom));
             z-index: 100;
         }
         .nav-item {
+            flex: 1;
+            max-width: 150px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 0.5rem 1rem;
-            color: #9ca3af;
+            gap: 2px;
+            padding: 0.2rem 0.5rem;
+            color: #a8a29e;
             font-size: 0.75rem;
             cursor: pointer;
-            transition: all 0.2s;
+            user-select: none;
+            transition: color 0.2s;
+        }
+        .nav-item .nav-icon {
+            width: 56px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            transition: background 0.25s, transform 0.25s;
+        }
+        .nav-item .nav-icon svg {
+            filter: grayscale(0.75);
+            opacity: 0.6;
+            transition: filter 0.25s, opacity 0.25s;
         }
         .nav-item.active {
             color: #7c3aed;
+            font-weight: 600;
         }
-        .nav-item span {
-            font-size: 1.25rem;
-            margin-bottom: 0.25rem;
+        .nav-item.active .nav-icon {
+            background: #f3e8ff;
+            transform: translateY(-2px);
+        }
+        .nav-item.active .nav-icon svg {
+            filter: none;
+            opacity: 1;
         }
         /* 历史记录卡片 */
         .history-card {
@@ -325,7 +352,7 @@
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
                         <span class="mr-2">📋</span>
-                        <span class="text-sm text-purple-700" data-i18n="usingTemplate">正在使用模板：</span>
+                        <span class="text-sm text-purple-700" data-i18n="usingTemplate">已填入客户：</span>
                         <span id="currentTemplateName" class="text-sm font-medium text-purple-800"></span>
                     </div>
                     <button onclick="clearTemplate()" class="text-purple-600 text-sm" data-i18n="clear">清除</button>
@@ -787,7 +814,7 @@
                         <input type="checkbox" id="saveAsTemplate">
                         <label for="saveAsTemplate">
                             <span class="checkbox-custom"></span>
-                            <span class="text-purple-700" data-i18n="saveAsTemplate">保存客户信息为模板</span>
+                            <span class="text-purple-700" data-i18n="saveAsTemplate">保存为常用客户</span>
                         </label>
                     </div>
                 </div>
@@ -902,7 +929,7 @@
         <!-- 历史记录页 -->
         <div id="historyPage" class="max-w-md mx-auto pt-6 hidden">
             <div class="text-center mb-6">
-                <h1 class="text-2xl font-bold text-gray-800 mb-2">📋 <span data-i18n="history">历史记录</span></h1>
+                <h1 class="text-2xl font-bold text-gray-800 mb-2 flex items-center justify-center gap-2"><span data-ss-icon="clock" data-size="32"></span><span data-i18n="history">历史记录</span></h1>
                 <p class="text-gray-600 text-sm" data-i18n="viewPastReports">查看过去的服务记录</p>
             </div>
 
@@ -923,7 +950,7 @@
         <!-- 模板页 -->
         <div id="templatePage" class="max-w-md mx-auto pt-6 hidden">
             <div class="text-center mb-6">
-                <h1 class="text-2xl font-bold text-gray-800 mb-2">📋 <span data-i18n="templates">客户模板</span></h1>
+                <h1 class="text-2xl font-bold text-gray-800 mb-2 flex items-center justify-center gap-2"><span data-ss-icon="clientCard" data-size="32"></span><span data-i18n="templates">客户档案</span></h1>
                 <p class="text-gray-600 text-sm" data-i18n="quickFill">快速填充客户信息</p>
             </div>
 
@@ -933,8 +960,8 @@
             
             <div id="templateEmpty" class="text-center py-10 hidden">
                 <div class="text-4xl mb-3">📝</div>
-                <p class="text-gray-500 mb-2" data-i18n="noTemplates">暂无保存的模板</p>
-                <p class="text-gray-400 text-sm" data-i18n="templateHint">填写报告时勾选"保存为模板"即可创建</p>
+                <p class="text-gray-500 mb-2" data-i18n="noTemplates">还没有保存的客户</p>
+                <p class="text-gray-400 text-sm" data-i18n="templateHint">填写报告时勾选"保存为常用客户"即可添加</p>
             </div>
 
             <div id="templateLoading" class="text-center py-10">
@@ -945,16 +972,16 @@
         <!-- 底部导航栏 -->
         <div class="bottom-nav">
             <div class="nav-item active" data-page="form" onclick="switchPage('form')">
-                <span>📝</span>
+                <span class="nav-icon" data-ss-icon="newNote" data-size="28"></span>
                 <span data-i18n="navNew">新建</span>
             </div>
             <div class="nav-item" data-page="history" onclick="switchPage('history')">
-                <span>📋</span>
+                <span class="nav-icon" data-ss-icon="clock" data-size="28"></span>
                 <span data-i18n="navHistory">历史</span>
             </div>
             <div class="nav-item" data-page="template" onclick="switchPage('template')">
-                <span>👤</span>
-                <span data-i18n="navTemplates">模板</span>
+                <span class="nav-icon" data-ss-icon="clientCard" data-size="28"></span>
+                <span data-i18n="navTemplates">客户</span>
             </div>
         </div>
     </div>
@@ -1045,7 +1072,7 @@
                 clickToUpload: "点击上传照片",
                 deletePhoto: "删除照片",
                 otherNotes: "其他备注",
-                saveAsTemplate: "保存客户信息为模板",
+                saveAsTemplate: "保存为常用客户",
                 generateReport: "生成报告",
                 feedingReport: "喂养报告",
                 reportGenerated: "报告已生成，可分享给客户",
@@ -1063,20 +1090,20 @@
                 history: "历史记录",
                 viewPastReports: "查看过去的服务记录",
                 noHistory: "暂无历史记录",
-                templates: "客户模板",
+                templates: "客户档案",
                 quickFill: "快速填充客户信息",
-                noTemplates: "暂无保存的模板",
-                templateHint: "填写报告时勾选\"保存为模板\"即可创建",
+                noTemplates: "还没有保存的客户",
+                templateHint: "填写报告时勾选\"保存为常用客户\"即可添加",
                 navNew: "新建",
                 navHistory: "历史",
-                navTemplates: "模板",
+                navTemplates: "客户",
                 addPhoto: "添加照片",
                 delete: "删除",
-                usingTemplate: "正在使用模板：",
+                usingTemplate: "已填入客户：",
                 clear: "清除",
                 useTemplate: "使用",
                 deleteTemplate: "删除",
-                confirmDelete: "确定要删除这个模板吗？",
+                confirmDelete: "确定要删除这位客户吗？",
                 confirmNewReport: "确定要新建报告吗？当前表单内容将被清空。",
                 linkCopied: "链接已复制！",
                 textCopied: "文字报告已复制到剪贴板！",
@@ -1148,7 +1175,7 @@
                 clickToUpload: "Click to Upload",
                 deletePhoto: "Delete Photo",
                 otherNotes: "Other Notes",
-                saveAsTemplate: "Save as Template",
+                saveAsTemplate: "Save as regular client",
                 generateReport: "Generate Report",
                 feedingReport: "Feeding Report",
                 reportGenerated: "Report generated, share with client",
@@ -1166,20 +1193,20 @@
                 history: "History",
                 viewPastReports: "View past service records",
                 noHistory: "No history yet",
-                templates: "Templates",
+                templates: "Clients",
                 quickFill: "Quick fill client info",
-                noTemplates: "No templates saved",
-                templateHint: "Check \"Save as Template\" when creating a report",
+                noTemplates: "No clients saved yet",
+                templateHint: "Tick \"Save as regular client\" when creating a report",
                 navNew: "New",
                 navHistory: "History",
-                navTemplates: "Templates",
+                navTemplates: "Clients",
                 addPhoto: "Add Photo",
                 delete: "Delete",
-                usingTemplate: "Using template:",
+                usingTemplate: "Filled in client:",
                 clear: "Clear",
                 useTemplate: "Use",
                 deleteTemplate: "Delete",
-                confirmDelete: "Delete this template?",
+                confirmDelete: "Delete this client?",
                 confirmNewReport: "Start a new report? Current form will be cleared.",
                 linkCopied: "Link copied!",
                 textCopied: "Text report copied!",

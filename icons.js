@@ -47,10 +47,43 @@
         '<path d="M12.5 25.5 Q11 23.5 12.5 22.8 Q13.3 22.5 13.5 23.4 Q13.7 22.5 14.5 22.8 Q16 23.5 14.5 25.5 L13.5 26.6 Z" fill="' + HOT_PINK + '"/>' +
         '<rect x="25" y="22.5" width="4.5" height="4.5" rx="1" fill="#fff7d6" stroke="' + LINE + '" stroke-width="1.5"/>';
 
+    // New report: notepad with a folded corner and a pink "+" badge
+    var newNote =
+        '<path d="M8 5 H24 L30 11 V33 Q30 35 28 35 H10 Q8 35 8 33 Z" fill="' + SKIN + '" stroke="' + LINE + '" stroke-width="2" stroke-linejoin="round"/>' +
+        '<path d="M24 5 V11 H30" fill="none" stroke="' + LINE + '" stroke-width="2" stroke-linejoin="round"/>' +
+        '<path d="M13 16 H23 M13 21 H21 M13 26 H17" stroke="#e9b98c" stroke-width="2.2" stroke-linecap="round"/>' +
+        '<circle cx="29" cy="29" r="7.5" fill="' + HOT_PINK + '" stroke="' + LINE + '" stroke-width="2"/>' +
+        '<path d="M29 25.3 V32.7 M25.3 29 H32.7" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>';
+
+    // History: round clock with cat ears
+    var clock =
+        '<path d="M9.5 14 L8.5 3.5 L17.5 9 Z" fill="' + PINK + '" stroke="' + LINE + '" stroke-width="2" stroke-linejoin="round"/>' +
+        '<path d="M30.5 14 L31.5 3.5 L22.5 9 Z" fill="' + PINK + '" stroke="' + LINE + '" stroke-width="2" stroke-linejoin="round"/>' +
+        '<circle cx="20" cy="22" r="14" fill="' + SKIN + '" stroke="' + LINE + '" stroke-width="2"/>' +
+        '<circle cx="20" cy="11.8" r="1.3" fill="#e9b98c"/><circle cx="30.2" cy="22" r="1.3" fill="#e9b98c"/>' +
+        '<circle cx="20" cy="32.2" r="1.3" fill="#e9b98c"/><circle cx="9.8" cy="22" r="1.3" fill="#e9b98c"/>' +
+        '<path d="M20 22 V14.8 M20 22 L25.5 25.2" stroke="' + LINE + '" stroke-width="2.3" stroke-linecap="round"/>' +
+        '<circle cx="20" cy="22" r="2" fill="' + HOT_PINK + '"/>';
+
+    // Clients: contact card with a little face and info lines
+    var clientCard =
+        '<rect x="3" y="7" width="34" height="26" rx="4.5" fill="#fffaf3" stroke="' + LINE + '" stroke-width="2"/>' +
+        '<path d="M3 13 V11.5 Q3 7 7.5 7 H32.5 Q37 7 37 11.5 V13 Z" fill="' + PINK + '"/>' +
+        '<rect x="3" y="7" width="34" height="26" rx="4.5" fill="none" stroke="' + LINE + '" stroke-width="2"/>' +
+        '<circle cx="13" cy="21" r="5.8" fill="' + HAIR + '" stroke="' + LINE + '" stroke-width="1.6"/>' +
+        '<circle cx="13" cy="22.3" r="4.4" fill="' + SKIN + '" stroke="' + LINE + '" stroke-width="1.4"/>' +
+        '<path d="M8.6 21 Q9 16.2 13 16.2 Q17 16.2 17.4 21 Q15 18.6 13 19 Q11 18.6 8.6 21 Z" fill="' + HAIR + '"/>' +
+        '<circle cx="11.5" cy="22.6" r=".85" fill="#3b2a20"/><circle cx="14.5" cy="22.6" r=".85" fill="#3b2a20"/>' +
+        '<path d="M7.5 32 Q13 26.5 18.5 32" fill="' + HOT_PINK + '" stroke="' + LINE + '" stroke-width="1.4" stroke-linejoin="round"/>' +
+        '<path d="M22 19 H32 M22 24 H29.5 M22 29 H27" stroke="#e9b98c" stroke-width="2.2" stroke-linecap="round"/>';
+
     window.SSIcons = {
         girl: function (size) { return svg(girl, size); },
         boy: function (size) { return svg(boy, size); },
         house: function (size) { return svg(house, size); },
+        newNote: function (size) { return svg(newNote, size); },
+        clock: function (size) { return svg(clock, size); },
+        clientCard: function (size) { return svg(clientCard, size); },
         // Reports saved before the girl/boy choice existed have no value: show the girl icon.
         person: function (gender, size) { return gender === 'male' ? svg(boy, size) : svg(girl, size); }
     };
