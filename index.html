@@ -8,7 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="icons.js?v=4"></script>
+    <script src="icons.js?v=5"></script>
     <style>
         * {
             -webkit-tap-highlight-color: transparent;
@@ -373,7 +373,7 @@
     <!-- 登录页 -->
     <div id="loginPage" class="max-w-md mx-auto pt-20">
         <div class="text-center mb-8">
-            <div class="text-6xl mb-4">🐾</div>
+            <div class="mb-4 flex justify-center" data-ss-icon="cat" data-size="80"></div>
             <h1 class="text-2xl font-bold text-gray-800 mb-2" data-i18n="appTitle">上门喂养小助手</h1>
             <p class="text-gray-600 text-sm" data-i18n="appSubtitle">记录每一次贴心的服务</p>
         </div>
@@ -404,7 +404,7 @@
         <!-- 填写页 -->
         <div id="formPage" class="max-w-md mx-auto pt-6">
             <div class="text-center mb-6">
-                <h1 class="text-3xl font-bold text-gray-800 mb-2">🐾 <span data-i18n="appTitle">上门喂养小助手</span></h1>
+                <h1 class="text-3xl font-bold text-gray-800 mb-2 flex items-center justify-center gap-2"><span data-ss-icon="paw" data-size="34"></span><span data-i18n="appTitle">上门喂养小助手</span></h1>
                 <p class="text-gray-600 text-sm" data-i18n="appSubtitle">记录每一次贴心的服务</p>
                 <button type="button" onclick="doLogout()" class="mt-2 text-xs text-gray-400 underline">退出登录 / Log out</button>
             </div>
@@ -425,7 +425,7 @@
                 <!-- 基础信息 -->
                 <div class="bg-white rounded-2xl p-5 card-shadow">
                     <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                        <span class="mr-2">📅</span> <span data-i18n="basicInfo">基础信息</span>
+                        <span class="mr-2 flex-shrink-0" data-ss-icon="calendar" data-size="26"></span> <span data-i18n="basicInfo">基础信息</span>
                     </h2>
                     <div class="space-y-4">
                         <div>
@@ -484,7 +484,7 @@
                 <!-- 饮食照料 -->
                 <div class="bg-white rounded-2xl p-5 card-shadow">
                     <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                        <span class="mr-2">🍽️</span> <span data-i18n="feeding">饮食照料</span>
+                        <span class="mr-2 flex-shrink-0" data-ss-icon="bowl" data-size="26"></span> <span data-i18n="feeding">饮食照料</span>
                     </h2>
                     <div class="space-y-4">
                         <div class="checkbox-wrapper">
@@ -633,7 +633,7 @@
                 <!-- 宠物状态 -->
                 <div class="bg-white rounded-2xl p-5 card-shadow">
                     <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                        <span class="mr-2">😺</span> <span data-i18n="petStatus">宠物状态</span>
+                        <span class="mr-2 flex-shrink-0" data-ss-icon="cat" data-size="26"></span> <span data-i18n="petStatus">宠物状态</span>
                     </h2>
                     <div class="space-y-4">
                         <div>
@@ -679,7 +679,7 @@
                 <!-- 卫生清洁 -->
                 <div class="bg-white rounded-2xl p-5 card-shadow">
                     <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                        <span class="mr-2">💩</span> <span data-i18n="hygiene">卫生清洁</span>
+                        <span class="mr-2 flex-shrink-0" data-ss-icon="litter" data-size="26"></span> <span data-i18n="hygiene">卫生清洁</span>
                     </h2>
                     <div class="space-y-4">
                         <div>
@@ -761,7 +761,7 @@
                 <!-- 呕吐情况 -->
                 <div class="bg-white rounded-2xl p-5 card-shadow">
                     <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                        <span class="mr-2">🤮</span> <span data-i18n="vomit">呕吐情况</span>
+                        <span class="mr-2 flex-shrink-0" data-ss-icon="catUnwell" data-size="26"></span> <span data-i18n="vomit">呕吐情况</span>
                     </h2>
                     <div class="space-y-4">
                         <div class="flex gap-2">
@@ -825,7 +825,7 @@
                 <!-- 环境检查 -->
                 <div class="bg-white rounded-2xl p-5 card-shadow">
                     <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                        <span class="mr-2">🏠</span> <span data-i18n="environment">环境检查</span>
+                        <span class="mr-2 flex-shrink-0" data-ss-icon="houseCheck" data-size="26"></span> <span data-i18n="environment">环境检查</span>
                     </h2>
                     <div class="space-y-3">
                         <div class="checkbox-wrapper">
@@ -862,7 +862,7 @@
                 <!-- 照片上传 -->
                 <div class="bg-white rounded-2xl p-5 card-shadow">
                     <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                        <span class="mr-2">📷</span> <span data-i18n="photoRecord">今日精选可爱瞬间</span>
+                        <span class="mr-2 flex-shrink-0" data-ss-icon="cameraSparkle" data-size="26"></span> <span data-i18n="photoRecord">今日精选可爱瞬间</span>
                     </h2>
                     <div class="space-y-4">
                         <input type="file" id="photoInput" accept="image/*" class="hidden">
@@ -882,7 +882,7 @@
                 <!-- 备注 -->
                 <div class="bg-white rounded-2xl p-5 card-shadow">
                     <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                        <span class="mr-2">📝</span> <span data-i18n="otherNotes">其他备注</span>
+                        <span class="mr-2 flex-shrink-0" data-ss-icon="memo" data-size="26"></span> <span data-i18n="otherNotes">其他备注</span>
                     </h2>
                     <textarea id="notes" rows="3" placeholder="其他需要告知主人的事项..."
                         class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 resize-none bg-white"></textarea>
@@ -901,8 +901,8 @@
 
                 <!-- 提交按钮 -->
                 <button type="submit" 
-                    class="w-full py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all active:scale-98" style="background:linear-gradient(90deg,#a855f7,#ec4899);color:#fff">
-                    <span data-i18n="generateReport">生成报告</span> ✨
+                    class="w-full py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all active:scale-98 flex items-center justify-center gap-2" style="background:linear-gradient(90deg,#a855f7,#ec4899);color:#fff">
+                    <span data-i18n="generateReport">生成报告</span><span data-ss-icon="sparklesWhite" data-size="22"></span>
                 </button>
             </form>
         </div>
@@ -910,7 +910,7 @@
         <!-- 报告页 -->
         <div id="reportPage" class="max-w-md mx-auto pt-6 hidden">
             <div class="text-center mb-6">
-                <h1 class="text-2xl font-bold text-gray-800 mb-2">🐾 <span data-i18n="feedingReport">喂养报告</span></h1>
+                <h1 class="text-2xl font-bold text-gray-800 mb-2 flex items-center justify-center gap-2"><span data-ss-icon="paw" data-size="30"></span><span data-i18n="feedingReport">喂养报告</span></h1>
                 <p class="text-gray-600 text-sm" data-i18n="reportGenerated">报告已生成，可分享给客户</p>
             </div>
 
@@ -928,12 +928,12 @@
                             <p id="reportOwner" class="font-medium text-gray-800"></p>
                         </div>
                         <div>
-                            <p class="text-gray-600 text-sm">🐾 <span data-i18n="pet">宠物</span></p>
+                            <p class="text-gray-600 text-sm flex items-center gap-1"><span data-ss-icon="paw" data-size="18"></span><span data-i18n="pet">宠物</span></p>
                             <p id="reportPets" class="font-medium text-gray-800"></p>
                         </div>
                     </div>
                     <div>
-                        <p class="text-gray-600 text-sm">📅 <span data-i18n="serviceTime">服务时间</span></p>
+                        <p class="text-gray-600 text-sm flex items-center gap-1"><span data-ss-icon="calendar" data-size="18"></span><span data-i18n="serviceTime">服务时间</span></p>
                         <p id="reportDateTime" class="font-medium text-gray-800"></p>
                     </div>
                 </div>
@@ -941,31 +941,31 @@
 
             <div class="bg-white rounded-2xl p-5 card-shadow space-y-4 mb-5">
                 <div>
-                    <p class="text-gray-600 text-sm mb-1">😺 <span data-i18n="petStatus">宠物状态</span></p>
+                    <p class="text-gray-600 text-sm mb-1 flex items-center gap-1"><span data-ss-icon="cat" data-size="18"></span><span data-i18n="petStatus">宠物状态</span></p>
                     <p id="reportMood" class="text-gray-800"></p>
                 </div>
                 <div>
-                    <p class="text-gray-600 text-sm mb-1">🍽️ <span data-i18n="feeding">饮食照料</span></p>
+                    <p class="text-gray-600 text-sm mb-1 flex items-center gap-1"><span data-ss-icon="bowl" data-size="18"></span><span data-i18n="feeding">饮食照料</span></p>
                     <p id="reportFeeding" class="text-gray-800"></p>
                 </div>
                 <div>
-                    <p class="text-gray-600 text-sm mb-1">💩 <span data-i18n="hygiene">卫生清洁</span></p>
+                    <p class="text-gray-600 text-sm mb-1 flex items-center gap-1"><span data-ss-icon="litter" data-size="18"></span><span data-i18n="hygiene">卫生清洁</span></p>
                     <p id="reportCleaning" class="text-gray-800"></p>
                 </div>
                 <div id="reportVomitContainer" class="hidden">
-                    <p class="text-gray-600 text-sm mb-1">🤮 <span data-i18n="vomit">呕吐情况</span></p>
+                    <p class="text-gray-600 text-sm mb-1 flex items-center gap-1"><span data-ss-icon="catUnwell" data-size="18"></span><span data-i18n="vomit">呕吐情况</span></p>
                     <p id="reportVomit" class="text-gray-800"></p>
                 </div>
                 <div>
-                    <p class="text-gray-600 text-sm mb-1">🏠 <span data-i18n="environment">环境检查</span></p>
+                    <p class="text-gray-600 text-sm mb-1 flex items-center gap-1"><span data-ss-icon="houseCheck" data-size="18"></span><span data-i18n="environment">环境检查</span></p>
                     <p id="reportEnvironment" class="text-gray-800"></p>
                 </div>
                 <div id="reportNotesContainer" class="hidden">
-                    <p class="text-gray-600 text-sm mb-1">📝 <span data-i18n="notes">备注</span></p>
+                    <p class="text-gray-600 text-sm mb-1 flex items-center gap-1"><span data-ss-icon="memo" data-size="18"></span><span data-i18n="notes">备注</span></p>
                     <p id="reportNotes" class="text-gray-800"></p>
                 </div>
                 <div id="reportPhotoContainer" class="hidden">
-                    <p class="text-gray-600 text-sm mb-1">📷 <span data-i18n="photo">照片</span></p>
+                    <p class="text-gray-600 text-sm mb-1 flex items-center gap-1"><span data-ss-icon="cameraSparkle" data-size="18"></span><span data-i18n="photo">照片</span></p>
                     <div class="photo-preview-container">
                         <img id="reportPhoto" class="photo-preview w-full mt-2">
                     </div>
@@ -974,7 +974,7 @@
 
             <!-- 二维码分享区域 -->
             <div class="bg-white rounded-2xl p-5 card-shadow mb-5 text-center">
-                <h3 class="font-semibold text-gray-800 mb-3">📱 <span data-i18n="shareToClient">分享给客户</span></h3>
+                <h3 class="font-semibold text-gray-800 mb-3 flex items-center justify-center gap-2"><span data-ss-icon="phone" data-size="24"></span><span data-i18n="shareToClient">分享给客户</span></h3>
                 <div class="qr-container mb-3">
                     <img id="qrcode" alt="QR Code" style="width: 200px; height: 200px;">
                 </div>
@@ -992,16 +992,16 @@
             <!-- 操作按钮 -->
             <div class="space-y-3">
                 <button id="copyTextBtn" 
-                    class="w-full py-3 bg-white border-2 border-purple-300 text-purple-700 font-medium rounded-2xl hover:bg-purple-50 transition-all">
-                    📋 <span data-i18n="copyTextReport">复制文字报告</span>
+                    class="w-full py-3 bg-white border-2 border-purple-300 text-purple-700 font-medium rounded-2xl hover:bg-purple-50 transition-all flex items-center justify-center gap-2">
+                    <span data-ss-icon="memo" data-size="22"></span><span data-i18n="copyTextReport">复制文字报告</span>
                 </button>
                 <button id="editBtn" 
-                    class="w-full py-3 bg-gray-100 text-gray-700 font-medium rounded-2xl hover:bg-gray-200 transition-all">
-                    ✏️ <span data-i18n="backToEdit">返回编辑</span>
+                    class="w-full py-3 bg-gray-100 text-gray-700 font-medium rounded-2xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2">
+                    <span data-ss-icon="pencil" data-size="22"></span><span data-i18n="backToEdit">返回编辑</span>
                 </button>
                 <button id="newReportBtn" 
-                    class="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all" style="background:linear-gradient(90deg,#a855f7,#ec4899);color:#fff">
-                    📝 <span data-i18n="newReport">新建报告</span>
+                    class="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2" style="background:linear-gradient(90deg,#a855f7,#ec4899);color:#fff">
+                    <span data-ss-icon="newNote" data-size="22"></span><span data-i18n="newReport">新建报告</span>
                 </button>
             </div>
         </div>
@@ -1018,7 +1018,7 @@
             </div>
             
             <div id="historyEmpty" class="text-center py-10 hidden">
-                <div class="text-4xl mb-3">📭</div>
+                <div class="mb-3 flex justify-center" data-ss-icon="clock" data-size="56"></div>
                 <p class="text-gray-500" data-i18n="noHistory">暂无历史记录</p>
             </div>
 
@@ -1039,7 +1039,7 @@
             </div>
             
             <div id="templateEmpty" class="text-center py-10 hidden">
-                <div class="text-4xl mb-3">📝</div>
+                <div class="mb-3 flex justify-center" data-ss-icon="clientCard" data-size="56"></div>
                 <p class="text-gray-500 mb-2" data-i18n="noTemplates">还没有保存的客户</p>
                 <p class="text-gray-400 text-sm" data-i18n="templateHint">填写报告时勾选"保存为常用客户"即可添加</p>
             </div>

@@ -8,7 +8,7 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="icons.js?v=4"></script>
+    <script src="icons.js?v=5"></script>
     <style>
         * {
             -webkit-tap-highlight-color: transparent;
@@ -139,7 +139,7 @@
     <!-- 错误页 -->
     <div id="errorPage" class="max-w-md mx-auto pt-6 hidden">
         <div class="text-center py-20">
-            <div class="text-6xl mb-4">😿</div>
+            <div class="mb-4 flex justify-center" data-ss-icon="catUnwell" data-size="80"></div>
             <h1 class="text-xl font-bold text-gray-800 mb-2">报告不存在</h1>
             <p class="text-gray-600 mb-6">链接可能已过期或无效</p>
             <a href="index.html" 
@@ -204,7 +204,7 @@
         <!-- 照片（如果有） -->
         <div id="photoSection" class="bg-white rounded-2xl p-5 card-shadow mb-4 hidden">
             <h3 class="font-semibold text-gray-800 mb-3 flex items-center">
-                <span class="mr-2">📷</span> 今日精选可爱瞬间
+                <span class="mr-2 flex-shrink-0" data-ss-icon="cameraSparkle" data-size="26"></span> 今日精选可爱瞬间
             </h3>
             <div class="photo-preview-container">
                 <img id="reportPhoto" class="photo-preview">
@@ -214,7 +214,7 @@
         <!-- 精神状态 -->
         <div class="bg-white rounded-2xl p-5 card-shadow mb-4">
             <h3 class="font-semibold text-gray-800 mb-3 flex items-center">
-                <span class="mr-2">😺</span> 宠物状态
+                <span class="mr-2 flex-shrink-0" data-ss-icon="cat" data-size="26"></span> 宠物状态
             </h3>
             <div class="flex items-center justify-between">
                 <span id="reportMood" class="text-lg"></span>
@@ -222,19 +222,19 @@
             </div>
             <div id="playSection" class="mt-3 pt-3 border-t border-gray-100 hidden">
                 <div class="flex items-center text-gray-600">
-                    <span class="mr-2">🎮</span>
+                    <span class="mr-2 flex-shrink-0" data-ss-icon="yarn" data-size="20"></span>
                     <span id="reportPlay"></span>
                 </div>
             </div>
             <div id="groomingSection" class="mt-3 pt-3 border-t border-gray-100 hidden">
                 <div class="flex items-center text-gray-600">
-                    <span class="mr-2">✨</span>
+                    <span class="mr-2 flex-shrink-0" data-ss-icon="sparkles" data-size="20"></span>
                     <span>已梳毛</span>
                 </div>
             </div>
             <div id="petStatusNotesSection" class="mt-3 pt-3 border-t border-gray-100 hidden">
                 <div class="text-gray-600">
-                    <span class="mr-2">📝</span>
+                    <span class="mr-1 inline-block align-middle" data-ss-icon="memo" data-size="20"></span>
                     <span id="reportPetStatusNotes"></span>
                 </div>
             </div>
@@ -243,7 +243,7 @@
         <!-- 饮食照料 -->
         <div class="bg-white rounded-2xl p-5 card-shadow mb-4">
             <h3 class="font-semibold text-gray-800 mb-3 flex items-center">
-                <span class="mr-2">🍽️</span> 饮食照料
+                <span class="mr-2 flex-shrink-0" data-ss-icon="bowl" data-size="26"></span> 饮食照料
             </h3>
             <div id="feedingContent">
                 <div class="info-row" id="feedingTypeRow">
@@ -289,7 +289,7 @@
         <!-- 卫生清洁 -->
         <div class="bg-white rounded-2xl p-5 card-shadow mb-4">
             <h3 class="font-semibold text-gray-800 mb-3 flex items-center">
-                <span class="mr-2">💩</span> 卫生清洁
+                <span class="mr-2 flex-shrink-0" data-ss-icon="litter" data-size="26"></span> 卫生清洁
             </h3>
             <div id="cleaningContent">
                 <div class="info-row">
@@ -310,7 +310,7 @@
         <!-- 呕吐情况（如果有） -->
         <div id="vomitSection" class="bg-white rounded-2xl p-5 card-shadow mb-4 hidden">
             <h3 class="font-semibold text-gray-800 mb-3 flex items-center">
-                <span class="mr-2">🤮</span> 呕吐情况
+                <span class="mr-2 flex-shrink-0" data-ss-icon="catUnwell" data-size="26"></span> 呕吐情况
             </h3>
             <div class="bg-yellow-50 rounded-xl p-3">
                 <p id="vomitContent" class="text-yellow-800"></p>
@@ -324,7 +324,7 @@
         <!-- 环境检查 -->
         <div class="bg-white rounded-2xl p-5 card-shadow mb-4">
             <h3 class="font-semibold text-gray-800 mb-3 flex items-center">
-                <span class="mr-2">🏠</span> 环境检查
+                <span class="mr-2 flex-shrink-0" data-ss-icon="houseCheck" data-size="26"></span> 环境检查
             </h3>
             <div class="space-y-2">
                 <div class="flex items-center" id="doorCheck">
@@ -349,14 +349,14 @@
         <!-- 备注（如果有） -->
         <div id="notesSection" class="bg-white rounded-2xl p-5 card-shadow mb-4 hidden">
             <h3 class="font-semibold text-gray-800 mb-3 flex items-center">
-                <span class="mr-2">📝</span> 其他备注
+                <span class="mr-2 flex-shrink-0" data-ss-icon="memo" data-size="26"></span> 其他备注
             </h3>
             <p id="reportNotes" class="text-gray-700"></p>
         </div>
 
         <!-- 底部 -->
         <div class="text-center py-6">
-            <p class="text-gray-400 text-sm">🐾 感谢信任，期待下次服务 🐾</p>
+            <p class="text-gray-400 text-sm flex items-center justify-center gap-2"><span data-ss-icon="paw" data-size="16"></span>感谢信任，期待下次服务<span data-ss-icon="paw" data-size="16"></span></p>
         </div>
     </div>
 

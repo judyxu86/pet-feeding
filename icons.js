@@ -94,7 +94,140 @@
         '<path d="M26.5 16.8 Q24.6 14.4 26.5 13.4 Q27.6 12.9 28 14.2 Q28.4 12.9 29.5 13.4 Q31.4 14.4 29.5 16.8 L28 18.4 Z" fill="' + HOT_PINK + '"/>' +
         '<rect x="4" y="7" width="32" height="26" rx="5" fill="none" stroke="' + LINE + '" stroke-width="2"/>';
 
+    // ---------- small helpers ----------
+    var ACCENT = '#e9b98c';
+    // heart centred at (cx, cy); k = scale (1 ≈ 8px wide)
+    function heart(cx, cy, k, fill) {
+        return '<path transform="translate(' + cx + ' ' + cy + ') scale(' + k + ')" d="M0 3 C-4 0 -4 -3 -2 -3.5 C-0.8 -3.8 0 -3 0 -2 C0 -3 0.8 -3.8 2 -3.5 C4 -3 4 0 0 3 Z" fill="' + fill + '"/>';
+    }
+    // 4-point twinkle star centred at (cx, cy), radius r
+    function sparkle(cx, cy, r, fill) {
+        return '<path d="M' + cx + ' ' + (cy - r) + ' Q' + cx + ' ' + cy + ' ' + (cx + r) + ' ' + cy +
+            ' Q' + cx + ' ' + cy + ' ' + cx + ' ' + (cy + r) + ' Q' + cx + ' ' + cy + ' ' + (cx - r) + ' ' + cy +
+            ' Q' + cx + ' ' + cy + ' ' + cx + ' ' + (cy - r) + ' Z" fill="' + fill + '"/>';
+    }
+    function stroke(w) { return ' stroke="' + LINE + '" stroke-width="' + w + '" stroke-linejoin="round" stroke-linecap="round"'; }
+
+    // ---------- section title icons ----------
+    // 基础信息: calendar with a pink top and a heart on today's date
+    var calendar =
+        '<rect x="5" y="8" width="30" height="27" rx="5" fill="' + SKIN + '"/>' +
+        '<path d="M5 17 V13 Q5 8 10 8 H30 Q35 8 35 13 V17 Z" fill="' + PINK + '"/>' +
+        '<rect x="5" y="8" width="30" height="27" rx="5" fill="none"' + stroke(2) + '/>' +
+        '<path d="M5 17 H35" fill="none"' + stroke(2) + '/>' +
+        '<path d="M13 5 V11 M27 5 V11" fill="none"' + stroke(2.4) + '/>' +
+        '<circle cx="12" cy="23" r="1.5" fill="' + ACCENT + '"/><circle cx="20" cy="23" r="1.5" fill="' + ACCENT + '"/><circle cx="28" cy="23" r="1.5" fill="' + ACCENT + '"/>' +
+        '<circle cx="12" cy="29.5" r="1.5" fill="' + ACCENT + '"/><circle cx="20" cy="29.5" r="1.5" fill="' + ACCENT + '"/>' +
+        heart(28, 29.5, 0.95, HOT_PINK);
+
+    // 饮食照料: pink food bowl full of kibble, with a little fish on the side
+    var bowl =
+        '<path d="M9 21 Q11.5 12.5 20 12.5 Q28.5 12.5 31 21 Z" fill="' + ACCENT + '"' + stroke(2) + '/>' +
+        '<circle cx="15" cy="17.5" r="1.7" fill="' + HAIR + '"/><circle cx="20.5" cy="15.5" r="1.7" fill="' + HAIR + '"/><circle cx="25.5" cy="18" r="1.7" fill="' + HAIR + '"/>' +
+        '<path d="M4 21 H36 Q35 33 26 34.5 H14 Q5 33 4 21 Z" fill="' + PINK + '"' + stroke(2) + '/>' +
+        '<path d="M14.5 27.5 Q18.5 24.3 22.5 27.5 Q18.5 30.7 14.5 27.5 Z M22.3 27.5 L25.8 25.2 V29.8 Z" fill="#fff"/>' +
+        '<circle cx="17" cy="27.2" r=".8" fill="' + LINE + '"/>';
+
+    // 宠物状态: happy cat face
+    var catEars =
+        '<path d="M7 19 L8 4 L18 11 Z" fill="' + SKIN + '"' + stroke(2) + '/>' +
+        '<path d="M33 19 L32 4 L22 11 Z" fill="' + SKIN + '"' + stroke(2) + '/>' +
+        '<path d="M10.2 14 L10.7 8.2 L15 11.3 Z" fill="' + PINK + '"/><path d="M29.8 14 L29.3 8.2 L25 11.3 Z" fill="' + PINK + '"/>';
+    var catHead = '<ellipse cx="20" cy="23" rx="16" ry="13.5" fill="' + SKIN + '"' + stroke(2) + '/>';
+    var catCheeks =
+        '<ellipse cx="9.5" cy="27.5" rx="2.7" ry="1.7" fill="' + PINK + '" opacity=".85"/><ellipse cx="30.5" cy="27.5" rx="2.7" ry="1.7" fill="' + PINK + '" opacity=".85"/>' +
+        '<path d="M18.6 25.4 Q20 24.4 21.4 25.4 Q20 27.2 18.6 25.4 Z" fill="' + HOT_PINK + '"/>';
+    var cat = catEars + catHead + catCheeks +
+        '<ellipse cx="14" cy="21.5" rx="1.9" ry="2.4" fill="#3b2a20"/><ellipse cx="26" cy="21.5" rx="1.9" ry="2.4" fill="#3b2a20"/>' +
+        '<circle cx="14.7" cy="20.6" r=".75" fill="#fff"/><circle cx="26.7" cy="20.6" r=".75" fill="#fff"/>' +
+        '<path d="M20 26.8 Q20 29.4 17.4 29.4 M20 26.8 Q20 29.4 22.6 29.4" fill="none"' + stroke(1.5) + '/>';
+
+    // 呕吐情况: cat feeling unwell — squinty eyes, wobbly mouth, sweat drop
+    var catUnwell = catEars + catHead + catCheeks +
+        '<path d="M11.5 19.5 L15.5 21.7 L11.5 23.9 M28.5 19.5 L24.5 21.7 L28.5 23.9" fill="none"' + stroke(1.8) + '/>' +
+        '<path d="M15.5 30 Q17 28.5 18.5 30 Q20 31.5 21.5 30 Q23 28.5 24.5 30" fill="none"' + stroke(1.6) + '/>' +
+        '<path d="M35 8 Q38.5 12.8 36.6 14.8 Q35 16.2 33.4 14.8 Q31.5 12.8 35 8 Z" fill="#93c5fd"' + stroke(1.4) + '/>';
+
+    // 卫生清洁: litter tray with sand, a paw print and sparkles
+    var litter =
+        sparkle(9, 9, 4, HOT_PINK) + sparkle(31, 7, 3, PINK) +
+        '<path d="M6 22 Q9 16.5 13 19.5 Q17 15.5 21 19.5 Q25 15.5 29 19.5 Q32 16.5 34 22 Z" fill="#f3d9b1"' + stroke(1.6) + '/>' +
+        '<path d="M3 21.5 H37 L34.2 33 Q33.6 35 31.5 35 H8.5 Q6.4 35 5.8 33 Z" fill="' + PINK + '"' + stroke(2) + '/>' +
+        '<ellipse cx="20" cy="30" rx="2.8" ry="2.2" fill="#fff"/>' +
+        '<circle cx="16.4" cy="26.6" r="1.2" fill="#fff"/><circle cx="20" cy="25.4" r="1.2" fill="#fff"/><circle cx="23.6" cy="26.6" r="1.2" fill="#fff"/>';
+
+    // 环境检查: the cat-eared house with a green tick badge
+    var houseCheck = house +
+        '<circle cx="31.5" cy="31.5" r="7" fill="#86efac"' + stroke(2) + '/>' +
+        '<path d="M28.3 31.6 L30.7 34 L34.8 29.4" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>';
+
+    // 今日精选可爱瞬间: the cat-ear camera with a twinkle
+    var cameraSparkle = camera + sparkle(20, 4.8, 3.8, HOT_PINK);
+
+    // 其他备注: memo paper with a pink pencil
+    var memo =
+        '<rect x="5" y="5" width="22" height="30" rx="3.5" fill="' + SKIN + '"' + stroke(2) + '/>' +
+        '<path d="M10 13 H22 M10 18.5 H22 M10 24 H17" fill="none" stroke="' + ACCENT + '" stroke-width="2.2" stroke-linecap="round"/>' +
+        '<g transform="rotate(40 28 23)">' +
+        '<rect x="25" y="10" width="6" height="19" rx="1.2" fill="' + PINK + '"' + stroke(1.8) + '/>' +
+        '<path d="M25 29 L28 34.5 L31 29 Z" fill="' + SKIN + '"' + stroke(1.8) + '/>' +
+        '<path d="M27.1 32.6 L28 34.5 L28.9 32.6 Z" fill="' + LINE + '"/>' +
+        '<rect x="25" y="7" width="6" height="3.5" rx="1" fill="' + HOT_PINK + '"' + stroke(1.8) + '/>' +
+        '</g>';
+
+    // App / report title: pink paw print
+    var paw =
+        '<path d="M20 35.5 Q10.5 35.5 11.2 28.6 Q11.8 22 20 22 Q28.2 22 28.8 28.6 Q29.5 35.5 20 35.5 Z" fill="' + PINK + '"' + stroke(2) + '/>' +
+        '<ellipse cx="9.2" cy="18.5" rx="3.6" ry="4.5" transform="rotate(-22 9.2 18.5)" fill="' + PINK + '"' + stroke(2) + '/>' +
+        '<ellipse cx="16" cy="11.5" rx="3.6" ry="4.7" transform="rotate(-6 16 11.5)" fill="' + PINK + '"' + stroke(2) + '/>' +
+        '<ellipse cx="24" cy="11.5" rx="3.6" ry="4.7" transform="rotate(6 24 11.5)" fill="' + PINK + '"' + stroke(2) + '/>' +
+        '<ellipse cx="30.8" cy="18.5" rx="3.6" ry="4.5" transform="rotate(22 30.8 18.5)" fill="' + PINK + '"' + stroke(2) + '/>' +
+        '<ellipse cx="17.3" cy="27" rx="2" ry="1.4" fill="#fff" opacity=".7"/>';
+
+    // 分享给客户: phone with a heart on the screen
+    var phone =
+        '<rect x="10" y="3" width="20" height="34" rx="4.5" fill="' + SKIN + '"' + stroke(2) + '/>' +
+        '<rect x="13" y="8" width="14" height="21.5" rx="2" fill="#fff"' + stroke(1.4) + '/>' +
+        heart(20, 18.5, 1.25, HOT_PINK) +
+        '<circle cx="20" cy="33.2" r="1.4" fill="' + LINE + '"/>' +
+        sparkle(34, 9, 3.5, HOT_PINK);
+
+    // 陪玩互动: ball of yarn
+    var yarn =
+        '<path d="M29 30 Q35.5 31.5 34.5 36 Q33.8 38 30.8 37.3" fill="none"' + stroke(1.8) + '/>' +
+        '<circle cx="19" cy="20.5" r="13.5" fill="' + PINK + '"' + stroke(2) + '/>' +
+        '<path d="M7.5 15.5 Q19 20.5 30.5 12.5 M6.2 22.5 Q19 28.5 32 19.5 M11 31 Q21 29 27 8.5" fill="none" stroke="' + HOT_PINK + '" stroke-width="1.7" stroke-linecap="round"/>';
+
+    // 已梳毛 / sparkle on buttons
+    var sparkles = sparkle(17, 21, 12, HOT_PINK) + sparkle(31.5, 8.5, 5.5, PINK) + sparkle(32, 31, 3.5, PINK);
+    // White sparkles for the purple-pink "生成报告" button
+    var sparklesWhite = sparkle(17, 21, 12, '#fff') + sparkle(31.5, 8.5, 5.5, '#fff') + sparkle(32, 31, 3.5, '#fff');
+
+    // 返回编辑: pink pencil with a little scribble
+    var pencil =
+        '<path d="M5 35 Q9.5 31.5 14 35 Q18.5 38.5 23 35" fill="none" stroke="' + ACCENT + '" stroke-width="2.2" stroke-linecap="round"/>' +
+        '<g transform="rotate(40 21 19)">' +
+        '<rect x="18" y="6" width="6" height="20" rx="1.2" fill="' + PINK + '"' + stroke(1.8) + '/>' +
+        '<path d="M18 26 L21 32 L24 26 Z" fill="' + SKIN + '"' + stroke(1.8) + '/>' +
+        '<path d="M20.1 30 L21 32 L21.9 30 Z" fill="' + LINE + '"/>' +
+        '<rect x="18" y="2.5" width="6" height="3.8" rx="1" fill="' + HOT_PINK + '"' + stroke(1.8) + '/>' +
+        '</g>';
+
     window.SSIcons = {
+        calendar: function (size) { return svg(calendar, size); },
+        bowl: function (size) { return svg(bowl, size); },
+        cat: function (size) { return svg(cat, size); },
+        catUnwell: function (size) { return svg(catUnwell, size); },
+        litter: function (size) { return svg(litter, size); },
+        houseCheck: function (size) { return svg(houseCheck, size); },
+        cameraSparkle: function (size) { return svg(cameraSparkle, size); },
+        memo: function (size) { return svg(memo, size); },
+        paw: function (size) { return svg(paw, size); },
+        phone: function (size) { return svg(phone, size); },
+        yarn: function (size) { return svg(yarn, size); },
+        sparkles: function (size) { return svg(sparkles, size); },
+        sparklesWhite: function (size) { return svg(sparklesWhite, size); },
+        pencil: function (size) { return svg(pencil, size); },
         camera: function (size) { return svg(camera, size); },
         album: function (size) { return svg(album, size); },
         girl: function (size) { return svg(girl, size); },
