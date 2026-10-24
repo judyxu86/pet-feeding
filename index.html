@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>上门喂养小助手 | Pet Feeding Assistant</title>
+    <!-- Home-screen app: icon, name and full-screen mode when added to an iPhone home screen -->
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="icon-192.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="喂养小助手">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#f5e6ff">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -184,6 +193,12 @@
             border-radius: 0.75rem;
         }
         /* 照片按钮：每处都是一样的两个按钮（拍照 + 相册），同宽同高 */
+        /* Sill & Sun logo tile next to page titles */
+        .brand-logo {
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(139, 90, 60, 0.18);
+            flex-shrink: 0;
+        }
         .photo-btn-row {
             display: flex;
             gap: 0.6rem;
@@ -404,7 +419,7 @@
         <!-- 填写页 -->
         <div id="formPage" class="max-w-md mx-auto pt-6">
             <div class="text-center mb-6">
-                <h1 class="text-3xl font-bold text-gray-800 mb-2 flex items-center justify-center gap-2"><span data-ss-icon="paw" data-size="34"></span><span data-i18n="appTitle">上门喂养小助手</span></h1>
+                <h1 class="text-3xl font-bold text-gray-800 mb-2 flex items-center justify-center gap-2"><img src="icon-192.png" alt="Sill &amp; Sun" class="brand-logo" style="width:46px;height:46px"><span data-i18n="appTitle">上门喂养小助手</span></h1>
                 <p class="text-gray-600 text-sm" data-i18n="appSubtitle">记录每一次贴心的服务</p>
                 <button type="button" onclick="doLogout()" class="mt-2 text-xs text-gray-400 underline">退出登录 / Log out</button>
             </div>
@@ -910,7 +925,7 @@
         <!-- 报告页 -->
         <div id="reportPage" class="max-w-md mx-auto pt-6 hidden">
             <div class="text-center mb-6">
-                <h1 class="text-2xl font-bold text-gray-800 mb-2 flex items-center justify-center gap-2"><span data-ss-icon="paw" data-size="30"></span><span data-i18n="feedingReport">喂养报告</span></h1>
+                <h1 class="text-2xl font-bold text-gray-800 mb-2 flex items-center justify-center gap-2"><img src="icon-192.png" alt="Sill &amp; Sun" class="brand-logo" style="width:40px;height:40px"><span data-i18n="feedingReport">喂养报告</span></h1>
                 <p class="text-gray-600 text-sm" data-i18n="reportGenerated">报告已生成，可分享给客户</p>
             </div>
 
