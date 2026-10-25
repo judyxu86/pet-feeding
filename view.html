@@ -132,16 +132,42 @@
             border-radius: 8px;
             margin-top: 0.5rem;
         }
+        /* 中文 / EN switch (top right, scrolls away with the page) */
+        .report-lang-switch {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 40;
+            background: #fff;
+            border-radius: 999px;
+            padding: 3px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        .report-lang-btn {
+            padding: 4px 11px;
+            border-radius: 999px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .report-lang-btn.active {
+            background: #7c3aed;
+            color: #fff;
+        }
     </style>
 </head>
 <body class="container-padding">
-    <a id="backToApp" href="index.html#history" style="display:none;position:fixed;top:12px;left:12px;z-index:50;background:#fff;color:#7e22ce;border:1px solid #d8b4fe;border-radius:999px;padding:6px 14px;font-size:14px;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.08)">← 返回历史记录</a>
+    <a id="backToApp" href="index.html#history" style="display:none;position:fixed;top:12px;left:12px;z-index:50;background:#fff;color:#7e22ce;border:1px solid #d8b4fe;border-radius:999px;padding:6px 14px;font-size:14px;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.08)" data-t="backToHistory">← 返回历史记录</a>
     <script>if (new URLSearchParams(location.search).get('from') === 'history') document.getElementById('backToApp').style.display = 'inline-block';</script>
+    <!-- 中文 / EN switch -->
+    <div class="report-lang-switch">
+        <button type="button" class="report-lang-btn" data-lang="zh" onclick="setLang('zh')">中文</button>
+        <button type="button" class="report-lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+    </div>
     <!-- 加载中 -->
     <div id="loadingPage" class="max-w-md mx-auto">
         <div class="loading-container">
             <div class="loading-spinner mb-4"></div>
-            <p class="text-gray-600">加载报告中...</p>
+            <p class="text-gray-600" data-t="loading">加载报告中...</p>
         </div>
     </div>
 
@@ -149,11 +175,11 @@
     <div id="errorPage" class="max-w-md mx-auto pt-6 hidden">
         <div class="text-center py-20">
             <div class="mb-4 flex justify-center" data-ss-icon="catUnwell" data-size="80"></div>
-            <h1 class="text-xl font-bold text-gray-800 mb-2">报告不存在</h1>
-            <p class="text-gray-600 mb-6">链接可能已过期或无效</p>
+            <h1 class="text-xl font-bold text-gray-800 mb-2" data-t="notFoundTitle">报告不存在</h1>
+            <p class="text-gray-600 mb-6" data-t="notFoundText">链接可能已过期或无效</p>
             <a href="index.html" 
                 class="inline-block px-6 py-3 bg-purple-500 text-white rounded-xl font-medium hover:bg-purple-600 transition-all">
-                返回首页
+                <span data-t="backHome">返回首页</span>
             </a>
         </div>
     </div>
@@ -189,13 +215,13 @@
                 </svg>
             </div>
             <h1 class="text-2xl font-bold text-gray-800 mb-1" id="headerTitle">喂养报告</h1>
-            <p class="text-gray-500 text-sm">来自Amber的每日记录</p>
+            <p class="text-gray-500 text-sm" data-t="fromAmber">来自Amber的每日记录</p>
         </div>
 
         <!-- 基本信息卡片 -->
         <div class="report-card rounded-2xl p-5 card-shadow mb-4">
             <div class="mb-4">
-                <p class="text-sm text-gray-500">服务时间</p>
+                <p class="text-sm text-gray-500" data-t="serviceTime">服务时间</p>
                 <p class="text-lg font-medium text-gray-800" id="reportDateTime"></p>
             </div>
             <div class="bg-white/50 rounded-xl p-3">
@@ -213,7 +239,7 @@
         <!-- 照片（如果有） -->
         <div id="photoSection" class="bg-white rounded-2xl p-5 card-shadow mb-4 hidden">
             <h3 class="font-semibold text-gray-800 mb-3 flex items-center">
-                <span class="mr-2 flex-shrink-0" data-ss-icon="cameraSparkle" data-size="26"></span> 今日精选可爱瞬间
+                <span class="mr-2 flex-shrink-0" data-ss-icon="cameraSparkle" data-size="26"></span> <span data-t="photoTitle">今日精选可爱瞬间</span>
             </h3>
             <div class="photo-preview-container">
                 <img id="reportPhoto" class="photo-preview">
@@ -223,7 +249,7 @@
         <!-- 精神状态 -->
         <div class="bg-white rounded-2xl p-5 card-shadow mb-4">
             <h3 class="font-semibold text-gray-800 mb-3 flex items-center">
-                <span class="mr-2 flex-shrink-0" data-ss-icon="cat" data-size="26"></span> 宠物状态
+                <span class="mr-2 flex-shrink-0" data-ss-icon="cat" data-size="26"></span> <span data-t="petStatus">宠物状态</span>
             </h3>
             <div class="flex items-center justify-between">
                 <span id="reportMood" class="text-lg"></span>
@@ -238,7 +264,7 @@
             <div id="groomingSection" class="mt-3 pt-3 border-t border-gray-100 hidden">
                 <div class="flex items-center text-gray-600">
                     <span class="mr-2 flex-shrink-0" data-ss-icon="sparkles" data-size="20"></span>
-                    <span>已梳毛</span>
+                    <span data-t="groomed">已梳毛</span>
                 </div>
             </div>
             <div id="petStatusNotesSection" class="mt-3 pt-3 border-t border-gray-100 hidden">
@@ -252,44 +278,44 @@
         <!-- 饮食照料 -->
         <div class="bg-white rounded-2xl p-5 card-shadow mb-4">
             <h3 class="font-semibold text-gray-800 mb-3 flex items-center">
-                <span class="mr-2 flex-shrink-0" data-ss-icon="bowl" data-size="26"></span> 饮食照料
+                <span class="mr-2 flex-shrink-0" data-ss-icon="bowl" data-size="26"></span> <span data-t="feeding">饮食照料</span>
             </h3>
             <div id="feedingContent">
                 <div class="info-row" id="feedingTypeRow">
-                    <span class="info-label">喂食种类/量</span>
+                    <span class="info-label" data-t="foodAmount">喂食种类/量</span>
                     <span class="info-value" id="feedingTypes"></span>
                 </div>
                 <div class="info-row" id="feedingAmountRow">
-                    <span class="info-label">喂食量</span>
+                    <span class="info-label" data-t="amountOld">喂食量</span>
                     <span class="info-value" id="feedingAmount"></span>
                 </div>
                 <div class="info-row" id="eatingBeforeRow">
-                    <span class="info-label">服务前进食</span>
+                    <span class="info-label" data-t="eatingBefore">服务前进食</span>
                     <div class="info-value">
                         <span id="eatingBefore"></span>
                         <img id="eatingBeforePhoto" class="small-photo hidden">
                     </div>
                 </div>
                 <div class="info-row" id="eatingDuringRow">
-                    <span class="info-label">服务时进食</span>
+                    <span class="info-label" data-t="eatingDuring">服务时进食</span>
                     <div class="info-value">
                         <span id="eatingDuring"></span>
                         <img id="eatingDuringPhoto" class="small-photo hidden">
                     </div>
                 </div>
                 <div class="info-row" id="bowlRow">
-                    <span class="info-label">碗清洗</span>
+                    <span class="info-label" data-t="bowl">碗清洗</span>
                     <span class="info-value" id="bowlStatus"></span>
                 </div>
                 <div class="info-row" id="waterRow">
-                    <span class="info-label">换水</span>
+                    <span class="info-label" data-t="water">换水</span>
                     <div class="info-value">
                         <span id="waterStatus"></span>
                         <img id="waterPhoto" class="small-photo hidden">
                     </div>
                 </div>
                 <div class="info-row hidden" id="dietNotesRow">
-                    <span class="info-label">备注</span>
+                    <span class="info-label" data-t="notes">备注</span>
                     <span class="info-value" id="dietNotes"></span>
                 </div>
             </div>
@@ -298,19 +324,19 @@
         <!-- 卫生清洁 -->
         <div class="bg-white rounded-2xl p-5 card-shadow mb-4">
             <h3 class="font-semibold text-gray-800 mb-3 flex items-center">
-                <span class="mr-2 flex-shrink-0" data-ss-icon="litter" data-size="26"></span> 卫生清洁
+                <span class="mr-2 flex-shrink-0" data-ss-icon="litter" data-size="26"></span> <span data-t="hygiene">卫生清洁</span>
             </h3>
             <div id="cleaningContent">
                 <div class="info-row">
-                    <span class="info-label">排便情况</span>
+                    <span class="info-label" data-t="poop">排便情况</span>
                     <span class="info-value" id="poopStatus"></span>
                 </div>
                 <div class="info-row" id="urineRow">
-                    <span class="info-label">尿团</span>
+                    <span class="info-label" data-t="urine">尿团</span>
                     <span class="info-value" id="urineStatus"></span>
                 </div>
                 <div id="wastePhotoSection" class="mt-3 hidden">
-                    <p class="text-sm text-gray-500 mb-2">排泄物照片</p>
+                    <p class="text-sm text-gray-500 mb-2" data-t="wastePhoto">排泄物照片</p>
                     <img id="wastePhoto" class="small-photo">
                 </div>
             </div>
@@ -319,13 +345,13 @@
         <!-- 呕吐情况（如果有） -->
         <div id="vomitSection" class="bg-white rounded-2xl p-5 card-shadow mb-4 hidden">
             <h3 class="font-semibold text-gray-800 mb-3 flex items-center">
-                <span class="mr-2 flex-shrink-0" data-ss-icon="catUnwell" data-size="26"></span> 呕吐情况
+                <span class="mr-2 flex-shrink-0" data-ss-icon="catUnwell" data-size="26"></span> <span data-t="vomit">呕吐情况</span>
             </h3>
             <div class="bg-yellow-50 rounded-xl p-3">
                 <p id="vomitContent" class="text-yellow-800"></p>
             </div>
             <div id="vomitPhotoSection" class="mt-3 hidden">
-                <p class="text-sm text-gray-500 mb-2">呕吐物照片</p>
+                <p class="text-sm text-gray-500 mb-2" data-t="vomitPhoto">呕吐物照片</p>
                 <img id="vomitPhoto" class="small-photo">
             </div>
         </div>
@@ -333,7 +359,7 @@
         <!-- 环境检查 -->
         <div class="bg-white rounded-2xl p-5 card-shadow mb-4">
             <h3 class="font-semibold text-gray-800 mb-3 flex items-center">
-                <span class="mr-2 flex-shrink-0" data-ss-icon="houseCheck" data-size="26"></span> 环境检查
+                <span class="mr-2 flex-shrink-0" data-ss-icon="houseCheck" data-size="26"></span> <span data-t="environment">环境检查</span>
             </h3>
             <div class="space-y-2">
                 <div class="flex items-center" id="doorCheck">
@@ -358,14 +384,14 @@
         <!-- 备注（如果有） -->
         <div id="notesSection" class="bg-white rounded-2xl p-5 card-shadow mb-4 hidden">
             <h3 class="font-semibold text-gray-800 mb-3 flex items-center">
-                <span class="mr-2 flex-shrink-0" data-ss-icon="memo" data-size="26"></span> 其他备注
+                <span class="mr-2 flex-shrink-0" data-ss-icon="memo" data-size="26"></span> <span data-t="otherNotes">其他备注</span>
             </h3>
             <p id="reportNotes" class="text-gray-700"></p>
         </div>
 
         <!-- 底部 -->
         <div class="text-center py-6">
-            <p class="text-gray-400 text-sm flex items-center justify-center gap-2"><span data-ss-icon="paw" data-size="16"></span>感谢信任，期待下次服务<span data-ss-icon="paw" data-size="16"></span></p>
+            <p class="text-gray-400 text-sm flex items-center justify-center gap-2"><span data-ss-icon="paw" data-size="16"></span><span data-t="thanks">感谢信任，期待下次服务</span><span data-ss-icon="paw" data-size="16"></span></p>
         </div>
     </div>
 
@@ -417,20 +443,104 @@
             document.getElementById('errorPage').classList.remove('hidden');
         }
 
+        // ==================== Language (中文 / English) ====================
+        // Opens in the language of the visitor's phone; a 中文/EN switch on the page overrides it
+        // (remembered on that phone). ?lang=en or ?lang=zh in the link also works.
+        const TEXT = {
+            zh: {
+                backToHistory: '← 返回历史记录', loading: '加载报告中...',
+                notFoundTitle: '报告不存在', notFoundText: '链接可能已过期或无效', backHome: '返回首页',
+                reportTitle: '喂养报告', fromAmber: '来自Amber的每日记录', docTitleFrom: ' - 来自Amber',
+                serviceTime: '服务时间', photoTitle: '今日精选可爱瞬间', petStatus: '宠物状态', groomed: '已梳毛',
+                feeding: '饮食照料', foodAmount: '喂食种类/量', amountOld: '喂食量', eatingBefore: '服务前进食', eatingDuring: '服务时进食',
+                bowl: '碗清洗', water: '换水', notes: '备注',
+                hygiene: '卫生清洁', poop: '排便情况', urine: '尿团', wastePhoto: '排泄物照片',
+                vomit: '呕吐情况', vomitPhoto: '呕吐物照片', vomitFound: '发现呕吐物',
+                environment: '环境检查', otherNotes: '其他备注', thanks: '感谢信任，期待下次服务',
+                door: '门窗已确认锁好', doorNo: '门窗未检查', utility: '水电/空调已复原', utilityNo: '水电/空调未检查',
+                surrounding: '周边清洁/补砂', surroundingNo: '周边未清洁', trash: '垃圾已处理', trashNo: '垃圾未处理',
+                notRecorded: '未记录', good: '状态良好', watch: '需关注', alert: '需注意',
+                bowlYes: '已清洗 ✓', bowlNo: '未清洗', waterYes: '已换水 ✓', waterNo: '未换水',
+                withHair: ' (有毛发)'
+            },
+            en: {
+                backToHistory: '← Back to history', loading: 'Loading report...',
+                notFoundTitle: 'Report not found', notFoundText: 'The link may have expired or is not valid', backHome: 'Back to home',
+                reportTitle: 'Feeding Report', fromAmber: 'Daily notes from Amber', docTitleFrom: ' - from Amber',
+                serviceTime: 'Visit time', photoTitle: "Today's Cutest Moment", petStatus: 'How they are doing', groomed: 'Brushed',
+                feeding: 'Food & water', foodAmount: 'Food & amount', amountOld: 'Amount', eatingBefore: 'Before my visit', eatingDuring: 'During my visit',
+                bowl: 'Bowls', water: 'Water', notes: 'Notes',
+                hygiene: 'Litter & hygiene', poop: 'Poop', urine: 'Urine clumps', wastePhoto: 'Litter photo',
+                vomit: 'Vomit', vomitPhoto: 'Vomit photo', vomitFound: 'Vomit found',
+                environment: 'Home check', otherNotes: 'Other notes', thanks: 'Thank you for trusting us. See you next time!',
+                door: 'Doors & windows locked', doorNo: 'Doors & windows not checked', utility: 'Utilities & heating reset', utilityNo: 'Utilities not checked',
+                surrounding: 'Area cleaned & litter topped up', surroundingNo: 'Area not cleaned', trash: 'Rubbish taken out', trashNo: 'Rubbish not taken out',
+                notRecorded: 'Not recorded', good: 'Doing well', watch: 'Keep an eye on', alert: 'Needs attention',
+                bowlYes: 'Washed ✓', bowlNo: 'Not washed', waterYes: 'Refreshed ✓', waterNo: 'Not changed',
+                withHair: ' (with hair)'
+            }
+        };
+
+        // Saved report values are Chinese; this shows them in English
+        const VALUE_EN = {
+            '吃完了': 'Finished all', '吃了大部分': 'Ate most', '吃了一点': 'Ate a little', '没怎么吃': 'Barely ate',
+            '吃得很香': 'Ate happily', '正常进食': 'Ate normally',
+            '活泼好动': 'Lively', '正常': 'Normal', '比较安静': 'Quiet', '状态异常': 'Unwell',
+            '偏软': 'Soft', '拉稀': 'Diarrhoea', '便秘': 'Constipated', '未发现': 'None found',
+            '偏大': 'Large', '偏小': 'Small',
+            '无异常': 'Normal', '颜色深': 'Dark', '颜色浅': 'Pale', '有血丝': 'Blood traces', '气味异常': 'Odd smell', '结块异常': 'Odd clumping',
+            '未发现呕吐物': 'No vomit', '发现呕吐物': 'Vomit found',
+            '毛球': 'Hairball', '未消化的食物': 'Undigested food', '液体/泡沫': 'Liquid/foam', '其他': 'Other',
+            '干粮': 'Dry food', '湿粮': 'Wet food', '罐头': 'Canned food', '零食': 'Treats',
+            '份': ' serve', '包': ' pouch', '罐': ' can', '根': ' stick'
+        };
+
+        function readSavedLang() {
+            try { return localStorage.getItem('ssReportLang'); } catch (e) { return null; }
+        }
+        let lang = new URLSearchParams(location.search).get('lang') || readSavedLang()
+            || ((navigator.language || '').toLowerCase().startsWith('zh') ? 'zh' : 'en');
+        if (lang !== 'zh' && lang !== 'en') lang = 'zh';
+
+        function L(key) { return TEXT[lang][key] || TEXT.zh[key] || key; }
+        function V(value) { return (lang === 'en' && value && VALUE_EN[value]) ? VALUE_EN[value] : value; }
+
+        function applyLang() {
+            document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN';
+            document.querySelectorAll('[data-t]').forEach(el => { el.textContent = L(el.dataset.t); });
+            document.querySelectorAll('.report-lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+        }
+
+        function setLang(newLang) {
+            lang = newLang;
+            try { localStorage.setItem('ssReportLang', newLang); } catch (e) {}
+            applyLang();
+            if (currentReport) displayReport(currentReport);
+        }
+
+        let currentReport = null;
+
         function displayReport(data) {
+            currentReport = data;
+            const en = lang === 'en';
+            const sep = en ? ', ' : '、';
+
             // 基本信息
             const petNames = data.petNames.join(' & ');
-            document.getElementById('headerTitle').textContent = petNames + '的喂养报告';
-            document.title = petNames + '的喂养报告 - 来自Amber';
+            const title = en ? `${petNames}'s ${L('reportTitle')}` : petNames + '的' + L('reportTitle');
+            document.getElementById('headerTitle').textContent = title;
+            document.title = title + L('docTitleFrom');
             document.getElementById('reportAddress').textContent = data.customerAddress;
             document.getElementById('reportOwner').textContent = data.ownerName;
             document.getElementById('ownerIcon').innerHTML = SSIcons.person(data.ownerGender, 22);
-            
+
             const dateObj = new Date(data.date);
             let timeStr = data.startTime || data.time || '';
             if (data.endTime) timeStr += ` - ${data.endTime}`;
-            const dateStr = `${dateObj.getMonth() + 1}月${dateObj.getDate()}日 ${timeStr}`;
-            document.getElementById('reportDateTime').textContent = dateStr;
+            const dayStr = en
+                ? dateObj.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+                : `${dateObj.getMonth() + 1}月${dateObj.getDate()}日`;
+            document.getElementById('reportDateTime').textContent = `${dayStr} ${timeStr}`;
 
             // 照片
             if (data.photo) {
@@ -438,27 +548,28 @@
                 document.getElementById('photoSection').classList.remove('hidden');
             }
 
-            // 精神状态
-            const moodText = data.moodStatus || '未记录';
-            document.getElementById('reportMood').textContent = moodText;
-            
+            // 精神状态 (the badge is decided from the saved Chinese value)
+            const moodRaw = data.moodStatus || '';
+            document.getElementById('reportMood').textContent = V(moodRaw) || L('notRecorded');
             const moodBadge = document.getElementById('moodBadge');
-            if (moodText.includes('活泼') || moodText.includes('正常')) {
-                moodBadge.textContent = '状态良好';
+            if (moodRaw.includes('活泼') || moodRaw.includes('正常')) {
+                moodBadge.textContent = L('good');
                 moodBadge.className = 'status-badge status-good';
-            } else if (moodText.includes('安静')) {
-                moodBadge.textContent = '需关注';
+            } else if (moodRaw.includes('安静')) {
+                moodBadge.textContent = L('watch');
                 moodBadge.className = 'status-badge status-warning';
-            } else if (moodText.includes('异常')) {
-                moodBadge.textContent = '需注意';
+            } else if (moodRaw.includes('异常')) {
+                moodBadge.textContent = L('alert');
                 moodBadge.className = 'status-badge status-alert';
             } else {
-                moodBadge.classList.add('hidden');
+                moodBadge.className = 'status-badge hidden';
             }
 
             // 陪玩
             if (data.playInteraction && data.playDuration) {
-                document.getElementById('reportPlay').textContent = `陪玩互动 ${data.playDuration} 分钟`;
+                document.getElementById('reportPlay').textContent = en
+                    ? `Played together for ${data.playDuration} min`
+                    : `陪玩互动 ${data.playDuration} 分钟`;
                 document.getElementById('playSection').classList.remove('hidden');
             }
 
@@ -467,35 +578,44 @@
                 document.getElementById('groomingSection').classList.remove('hidden');
             }
 
-            // 宠物状态备注
+            // 宠物状态备注 (owner's own words, shown as written)
             if (data.petStatusNotes) {
                 document.getElementById('reportPetStatusNotes').textContent = data.petStatusNotes;
                 document.getElementById('petStatusNotesSection').classList.remove('hidden');
             }
 
-            // 饮食
-            if (data.feedingTypes && data.feedingTypes.length > 0) {
-                // One food per line, e.g. "干粮(Purina) 20g"
+            // 饮食: one food per line, e.g. "干粮(Purina) 20g" / "Dry food (Purina) 20g"
+            let foodLines = data.feedingTypes || [];
+            if (en && Array.isArray(data.feedingItems)) {
+                foodLines = data.feedingItems.map(it => {
+                    let s = V(it.type);
+                    if (it.brand) s += ` (${it.brand})`;
+                    if (it.amount) s += ` ${it.amount}${it.unit === 'g' ? 'g' : V(it.unit)}`;
+                    return s;
+                });
+            }
+            if (foodLines.length > 0) {
                 const typesEl = document.getElementById('feedingTypes');
                 typesEl.textContent = '';
-                data.feedingTypes.forEach(t => {
-                    const line = document.createElement('div');
-                    line.textContent = t;
-                    typesEl.appendChild(line);
+                foodLines.forEach(line => {
+                    const div = document.createElement('div');
+                    div.textContent = line;
+                    typesEl.appendChild(div);
                 });
             } else {
                 document.getElementById('feedingTypeRow').classList.add('hidden');
             }
 
             if (data.feedingAmount) {
-                document.getElementById('feedingAmount').textContent = `${data.feedingAmount}${data.feedingUnit || 'g'}`;
+                const unit = data.feedingUnit || 'g';
+                document.getElementById('feedingAmount').textContent = `${data.feedingAmount}${unit === 'g' ? 'g' : V(unit)}`;
             } else {
                 document.getElementById('feedingAmountRow').classList.add('hidden');
             }
 
             // 服务前进食
             if (data.eatingBefore) {
-                document.getElementById('eatingBefore').textContent = data.eatingBefore;
+                document.getElementById('eatingBefore').textContent = V(data.eatingBefore);
                 if (data.eatingBeforePhoto) {
                     document.getElementById('eatingBeforePhoto').src = data.eatingBeforePhoto;
                     document.getElementById('eatingBeforePhoto').classList.remove('hidden');
@@ -506,51 +626,53 @@
 
             // 服务时进食
             if (data.eatingDuring) {
-                document.getElementById('eatingDuring').textContent = data.eatingDuring;
+                document.getElementById('eatingDuring').textContent = V(data.eatingDuring);
                 if (data.eatingDuringPhoto) {
                     document.getElementById('eatingDuringPhoto').src = data.eatingDuringPhoto;
                     document.getElementById('eatingDuringPhoto').classList.remove('hidden');
                 }
             } else if (data.eatingStatus) {
                 // 兼容旧数据
-                document.getElementById('eatingDuring').textContent = data.eatingStatus;
+                document.getElementById('eatingDuring').textContent = V(data.eatingStatus);
             } else {
                 document.getElementById('eatingDuringRow').classList.add('hidden');
             }
-            
-            document.getElementById('bowlStatus').textContent = data.bowlCleaned ? '已清洗 ✓' : '未清洗';
-            document.getElementById('waterStatus').textContent = data.waterChanged ? '已换水 ✓' : '未换水';
-            
+
+            document.getElementById('bowlStatus').textContent = data.bowlCleaned ? L('bowlYes') : L('bowlNo');
+            document.getElementById('waterStatus').textContent = data.waterChanged ? L('waterYes') : L('waterNo');
+
             // 换水照片
             if (data.waterPhoto) {
                 document.getElementById('waterPhoto').src = data.waterPhoto;
                 document.getElementById('waterPhoto').classList.remove('hidden');
             }
-            
+
             if (data.dietNotes) {
                 document.getElementById('dietNotes').textContent = data.dietNotes;
                 document.getElementById('dietNotesRow').classList.remove('hidden');
             }
 
             // 卫生
-            let poopText = data.poopStatus || '未记录';
-            if (data.poopHasHair) poopText += ' (有毛发)';
+            let poopText = V(data.poopStatus) || L('notRecorded');
+            if (data.poopHasHair) poopText += L('withHair');
             if (data.poopNotes) poopText += ` - ${data.poopNotes}`;
             document.getElementById('poopStatus').textContent = poopText;
-            
+
             // 尿团（新格式）
             if (data.urineCount || data.urineSize) {
                 let urineText = '';
-                if (data.urineCount) urineText += `${data.urineCount}个`;
-                if (data.urineSize) urineText += ` ${data.urineSize}`;
-                if (data.urineAbnormal && data.urineAbnormal !== '无异常') urineText += ` (${data.urineAbnormal})`;
+                if (data.urineCount) urineText += en
+                    ? `${data.urineCount} ${Number(data.urineCount) === 1 ? 'clump' : 'clumps'}`
+                    : `${data.urineCount}个`;
+                if (data.urineSize) urineText += (en && urineText ? ', ' : ' ') + V(data.urineSize);
+                if (data.urineAbnormal && data.urineAbnormal !== '无异常') urineText += ` (${V(data.urineAbnormal)})`;
                 if (data.urineNotes) urineText += ` - ${data.urineNotes}`;
-                document.getElementById('urineStatus').textContent = urineText || '未记录';
+                document.getElementById('urineStatus').textContent = urineText.trim() || L('notRecorded');
             } else if (data.urineStatus) {
                 // 兼容旧数据
-                document.getElementById('urineStatus').textContent = data.urineStatus;
+                document.getElementById('urineStatus').textContent = V(data.urineStatus);
             } else {
-                document.getElementById('urineStatus').textContent = '未记录';
+                document.getElementById('urineStatus').textContent = L('notRecorded');
             }
 
             // 排泄物照片
@@ -561,9 +683,10 @@
 
             // 呕吐
             if (data.vomitStatus === '发现呕吐物') {
-                let vomitText = '发现呕吐物';
+                let vomitText = L('vomitFound');
                 if (data.vomitTypes && data.vomitTypes.length > 0) {
-                    vomitText += `（${data.vomitTypes.join('、')}）`;
+                    const types = data.vomitTypes.map(V).join(sep);
+                    vomitText += en ? ` (${types})` : `（${types}）`;
                 }
                 if (data.vomitNotes) {
                     vomitText += ` - ${data.vomitNotes}`;
@@ -576,39 +699,18 @@
                 }
             }
 
-            // 环境检查
-            const doorCheck = document.getElementById('doorCheck');
-            const utilityCheck = document.getElementById('utilityCheck');
-            const surroundingCheck = document.getElementById('surroundingCheck');
-            const trashCheck = document.getElementById('trashCheck');
-            
-            if (!data.doorWindowChecked) {
-                doorCheck.innerHTML = `
-                    <span class="w-6 h-6 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center text-sm mr-3">-</span>
-                    <span class="text-gray-400">门窗未检查</span>
-                `;
+            // 环境检查 (rebuilt every time so it can switch language)
+            const tick = '<span class="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-sm mr-3">✓</span>';
+            const dash = '<span class="w-6 h-6 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center text-sm mr-3">-</span>';
+            function checkRow(id, done, yesKey, noKey) {
+                document.getElementById(id).innerHTML = done
+                    ? `${tick}<span class="text-gray-700">${L(yesKey)}</span>`
+                    : `${dash}<span class="text-gray-400">${L(noKey)}</span>`;
             }
-            
-            if (!data.utilitiesChecked) {
-                utilityCheck.innerHTML = `
-                    <span class="w-6 h-6 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center text-sm mr-3">-</span>
-                    <span class="text-gray-400">水电/空调未检查</span>
-                `;
-            }
-
-            if (!data.surroundingCleaned) {
-                surroundingCheck.innerHTML = `
-                    <span class="w-6 h-6 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center text-sm mr-3">-</span>
-                    <span class="text-gray-400">周边未清洁</span>
-                `;
-            }
-
-            if (!data.trashHandled) {
-                trashCheck.innerHTML = `
-                    <span class="w-6 h-6 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center text-sm mr-3">-</span>
-                    <span class="text-gray-400">垃圾未处理</span>
-                `;
-            }
+            checkRow('doorCheck', data.doorWindowChecked, 'door', 'doorNo');
+            checkRow('utilityCheck', data.utilitiesChecked, 'utility', 'utilityNo');
+            checkRow('surroundingCheck', data.surroundingCleaned, 'surrounding', 'surroundingNo');
+            checkRow('trashCheck', data.trashHandled, 'trash', 'trashNo');
 
             // 备注
             if (data.notes) {
@@ -620,6 +722,8 @@
             document.getElementById('loadingPage').classList.add('hidden');
             document.getElementById('reportPage').classList.remove('hidden');
         }
+
+        applyLang();
 
         // 页面加载时获取报告
         loadReport();
