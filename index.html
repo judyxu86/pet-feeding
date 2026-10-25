@@ -191,7 +191,7 @@
             text-align: center;
         }
         .feeding-type-row select {
-            width: 3.4rem;
+            width: 4.3rem;
             flex-shrink: 0;
             padding: 0.5rem 0.2rem;
             font-size: 0.875rem;
@@ -406,12 +406,12 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="email">邮箱</label>
-                    <input type="email" id="loginEmail" placeholder="请输入邮箱" autocomplete="username"
+                    <input type="email" id="loginEmail" placeholder="请输入邮箱" data-i18n-ph="emailPh" autocomplete="username"
                         class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="password">密码</label>
-                    <input type="password" id="loginPassword" placeholder="请输入密码" autocomplete="current-password"
+                    <input type="password" id="loginPassword" placeholder="请输入密码" data-i18n-ph="passwordPh" autocomplete="current-password"
                         class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
                 </div>
                 <button onclick="doLogin()" 
@@ -430,7 +430,7 @@
             <div class="text-center mb-6">
                 <h1 class="text-3xl font-bold text-gray-800 mb-2 flex items-center justify-center gap-2"><img src="icon-192.png" alt="Sill &amp; Sun" class="brand-logo" style="width:46px;height:46px"><span data-i18n="appTitle">上门喂养小助手</span></h1>
                 <p class="text-gray-600 text-sm" data-i18n="appSubtitle">记录每一次贴心的服务</p>
-                <button type="button" onclick="doLogout()" class="mt-2 text-xs text-gray-400 underline">退出登录 / Log out</button>
+                <button type="button" onclick="doLogout()" class="mt-2 text-xs text-gray-400 underline" data-i18n="logout">退出登录</button>
             </div>
 
             <!-- 选择模板提示 -->
@@ -471,12 +471,12 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="address">客户地址</label>
-                            <input type="text" id="customerAddress" placeholder="请输入客户地址" required
+                            <input type="text" id="customerAddress" placeholder="请输入客户地址" data-i18n-ph="addressPh" required
                                 class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="ownerName">主人姓名</label>
-                            <input type="text" id="ownerName" placeholder="请输入主人姓名" required
+                            <input type="text" id="ownerName" placeholder="请输入主人姓名" data-i18n-ph="ownerNamePh" required
                                 class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
                             <div class="flex gap-2 mt-2">
                                 <button type="button" class="toggle-btn flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-sm" data-group="ownerGender" data-value="female">
@@ -492,7 +492,7 @@
                             <div id="petNamesContainer">
                                 <div class="pet-input-group mb-2">
                                     <div class="pet-input-wrapper">
-                                        <input type="text" name="petName" placeholder="请输入宠物昵称" required
+                                        <input type="text" name="petName" placeholder="请输入宠物昵称" data-i18n-ph="petNamePh" required
                                             class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
                                     </div>
                                 </div>
@@ -530,12 +530,12 @@
                                             <span class="text-gray-700" data-i18n="dryFood">干粮</span>
                                         </label>
                                     </div>
-                                    <input type="text" id="feedingBrandDry" placeholder="品牌"
+                                    <input type="text" id="feedingBrandDry" placeholder="品牌" data-i18n-ph="brandPh"
                                         class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 text-sm bg-white">
-                                    <input type="number" id="feedingAmountDry" placeholder="数量" min="0" step="any" inputmode="decimal"
+                                    <input type="number" id="feedingAmountDry" placeholder="数量" data-i18n-ph="amountPh" min="0" step="any" inputmode="decimal"
                                         class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 bg-white">
                                     <select id="feedingUnitDry" class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 bg-white">
-                                        <option value="g" selected>g</option><option value="份">份</option><option value="包">包</option><option value="罐">罐</option><option value="根">根</option>
+                                        <option value="g" selected>g</option><option value="份" data-i18n="unitServe">份</option><option value="包" data-i18n="unitPouch">包</option><option value="罐" data-i18n="unitCan">罐</option><option value="根" data-i18n="unitStick">根</option>
                                     </select>
                                 </div>
                                 <div class="feeding-type-row">
@@ -546,12 +546,12 @@
                                             <span class="text-gray-700" data-i18n="wetFood">湿粮</span>
                                         </label>
                                     </div>
-                                    <input type="text" id="feedingBrandWet" placeholder="品牌"
+                                    <input type="text" id="feedingBrandWet" placeholder="品牌" data-i18n-ph="brandPh"
                                         class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 text-sm bg-white">
-                                    <input type="number" id="feedingAmountWet" placeholder="数量" min="0" step="any" inputmode="decimal"
+                                    <input type="number" id="feedingAmountWet" placeholder="数量" data-i18n-ph="amountPh" min="0" step="any" inputmode="decimal"
                                         class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 bg-white">
                                     <select id="feedingUnitWet" class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 bg-white">
-                                        <option value="g">g</option><option value="份">份</option><option value="包" selected>包</option><option value="罐">罐</option><option value="根">根</option>
+                                        <option value="g">g</option><option value="份" data-i18n="unitServe">份</option><option value="包" selected data-i18n="unitPouch">包</option><option value="罐" data-i18n="unitCan">罐</option><option value="根" data-i18n="unitStick">根</option>
                                     </select>
                                 </div>
                                 <div class="feeding-type-row">
@@ -562,12 +562,12 @@
                                             <span class="text-gray-700" data-i18n="cannedFood">罐头</span>
                                         </label>
                                     </div>
-                                    <input type="text" id="feedingBrandCan" placeholder="品牌"
+                                    <input type="text" id="feedingBrandCan" placeholder="品牌" data-i18n-ph="brandPh"
                                         class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 text-sm bg-white">
-                                    <input type="number" id="feedingAmountCan" placeholder="数量" min="0" step="any" inputmode="decimal"
+                                    <input type="number" id="feedingAmountCan" placeholder="数量" data-i18n-ph="amountPh" min="0" step="any" inputmode="decimal"
                                         class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 bg-white">
                                     <select id="feedingUnitCan" class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 bg-white">
-                                        <option value="g">g</option><option value="份">份</option><option value="包">包</option><option value="罐" selected>罐</option><option value="根">根</option>
+                                        <option value="g">g</option><option value="份" data-i18n="unitServe">份</option><option value="包" data-i18n="unitPouch">包</option><option value="罐" selected data-i18n="unitCan">罐</option><option value="根" data-i18n="unitStick">根</option>
                                     </select>
                                 </div>
                                 <div class="feeding-type-row">
@@ -578,12 +578,12 @@
                                             <span class="text-gray-700" data-i18n="treats">零食</span>
                                         </label>
                                     </div>
-                                    <input type="text" id="feedingBrandSnack" placeholder="品牌"
+                                    <input type="text" id="feedingBrandSnack" placeholder="品牌" data-i18n-ph="brandPh"
                                         class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 text-sm bg-white">
-                                    <input type="number" id="feedingAmountSnack" placeholder="数量" min="0" step="any" inputmode="decimal"
+                                    <input type="number" id="feedingAmountSnack" placeholder="数量" data-i18n-ph="amountPh" min="0" step="any" inputmode="decimal"
                                         class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 bg-white">
                                     <select id="feedingUnitSnack" class="rounded-lg border-2 border-gray-200 input-focus text-gray-800 bg-white">
-                                        <option value="g">g</option><option value="份">份</option><option value="包">包</option><option value="罐">罐</option><option value="根" selected>根</option>
+                                        <option value="g">g</option><option value="份" data-i18n="unitServe">份</option><option value="包" data-i18n="unitPouch">包</option><option value="罐" data-i18n="unitCan">罐</option><option value="根" selected data-i18n="unitStick">根</option>
                                     </select>
                                 </div>
                             </div>
@@ -648,7 +648,7 @@
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="dietNotes">饮食备注</label>
-                            <input type="text" id="dietNotes" placeholder="如有特殊情况请备注"
+                            <input type="text" id="dietNotes" placeholder="如有特殊情况请备注" data-i18n-ph="notesPh"
                                 class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
                         </div>
                     </div>
@@ -680,7 +680,7 @@
 
                         <div id="playDurationContainer" class="hidden">
                             <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="playDuration">陪玩时长（分钟）</label>
-                            <input type="number" id="playDuration" placeholder="请输入分钟数" min="1"
+                            <input type="number" id="playDuration" placeholder="请输入分钟数" data-i18n-ph="minutesPh" min="1"
                                 class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
                         </div>
 
@@ -694,7 +694,7 @@
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="petStatusNotes">宠物状态备注</label>
-                            <input type="text" id="petStatusNotes" placeholder="如有特殊情况请备注"
+                            <input type="text" id="petStatusNotes" placeholder="如有特殊情况请备注" data-i18n-ph="notesPh"
                                 class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
                         </div>
                     </div>
@@ -727,7 +727,7 @@
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="poopNotes">排便备注</label>
-                            <input type="text" id="poopNotes" placeholder="如有特殊情况请备注"
+                            <input type="text" id="poopNotes" placeholder="如有特殊情况请备注" data-i18n-ph="notesPh"
                                 class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
                         </div>
 
@@ -737,32 +737,32 @@
                             <div class="grid grid-cols-2 gap-3 mb-3">
                                 <div>
                                     <label class="block text-xs text-gray-500 mb-1" data-i18n="urineCount">数量</label>
-                                    <input type="number" id="urineCount" placeholder="几个" min="0"
+                                    <input type="number" id="urineCount" placeholder="几个" data-i18n-ph="countPh" min="0"
                                         class="w-full px-3 py-2 rounded-lg border-2 border-gray-200 input-focus text-gray-800 text-sm bg-white">
                                 </div>
                                 <div>
                                     <label class="block text-xs text-gray-500 mb-1" data-i18n="urineSize">大小</label>
                                     <div class="flex flex-wrap gap-1">
-                                        <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineSize" data-value="正常">正常</button>
-                                        <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineSize" data-value="偏大">偏大</button>
-                                        <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineSize" data-value="偏小">偏小</button>
+                                        <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineSize" data-value="正常" data-i18n-value="normal">正常</button>
+                                        <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineSize" data-value="偏大" data-i18n-value="large">偏大</button>
+                                        <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineSize" data-value="偏小" data-i18n-value="small">偏小</button>
                                     </div>
                                 </div>
                             </div>
                             <div>
                                 <label class="block text-xs text-gray-500 mb-1" data-i18n="urineAbnormal">尿团异常</label>
                                 <div class="flex flex-wrap gap-1 mb-3">
-                                    <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineAbnormal" data-value="无异常">无异常</button>
-                                    <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineAbnormal" data-value="颜色深">颜色深</button>
-                                    <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineAbnormal" data-value="颜色浅">颜色浅</button>
-                                    <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineAbnormal" data-value="有血丝">有血丝</button>
-                                    <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineAbnormal" data-value="气味异常">气味异常</button>
-                                    <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineAbnormal" data-value="结块异常">结块异常</button>
+                                    <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineAbnormal" data-value="无异常" data-i18n-value="noAbnormal">无异常</button>
+                                    <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineAbnormal" data-value="颜色深" data-i18n-value="darkColour">颜色深</button>
+                                    <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineAbnormal" data-value="颜色浅" data-i18n-value="lightColour">颜色浅</button>
+                                    <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineAbnormal" data-value="有血丝" data-i18n-value="bloodTraces">有血丝</button>
+                                    <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineAbnormal" data-value="气味异常" data-i18n-value="oddSmell">气味异常</button>
+                                    <button type="button" class="toggle-btn px-3 py-1 rounded-lg text-xs" data-group="urineAbnormal" data-value="结块异常" data-i18n-value="oddClumping">结块异常</button>
                                 </div>
                             </div>
                             <div>
                                 <label class="block text-xs text-gray-500 mb-1" data-i18n="urineNotes">尿团备注</label>
-                                <input type="text" id="urineNotes" placeholder="如有特殊情况请备注"
+                                <input type="text" id="urineNotes" placeholder="如有特殊情况请备注" data-i18n-ph="notesPh"
                                     class="w-full px-3 py-2 rounded-lg border-2 border-gray-200 input-focus text-gray-800 text-sm bg-white">
                             </div>
                         </div>
@@ -827,7 +827,7 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="vomitNotes">呕吐备注</label>
-                                <input type="text" id="vomitNotes" placeholder="描述呕吐物情况"
+                                <input type="text" id="vomitNotes" placeholder="描述呕吐物情况" data-i18n-ph="vomitNotesPh"
                                     class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
                             </div>
                             <!-- 呕吐物照片 -->
@@ -908,7 +908,7 @@
                     <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                         <span class="mr-2 flex-shrink-0" data-ss-icon="memo" data-size="26"></span> <span data-i18n="otherNotes">其他备注</span>
                     </h2>
-                    <textarea id="notes" rows="3" placeholder="其他需要告知主人的事项..."
+                    <textarea id="notes" rows="3" placeholder="其他需要告知主人的事项..." data-i18n-ph="otherNotesPh"
                         class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 resize-none bg-white"></textarea>
                 </div>
 
@@ -1112,6 +1112,25 @@
 
         const translations = {
             zh: {
+                // —— 按钮文字（保存的值始终是中文，只换显示文字）——
+                finishedAll: "吃完了", mostlyEaten: "吃了大部分", ateALittle: "吃了一点", hardlyAte: "没怎么吃",
+                ateWell: "吃得很香", normalEating: "正常进食",
+                active: "活泼好动", normal: "正常", quiet: "比较安静", abnormal: "状态异常",
+                soft: "偏软", diarrhea: "拉稀", constipation: "便秘", notFound: "未发现",
+                large: "偏大", small: "偏小",
+                noAbnormal: "无异常", darkColour: "颜色深", lightColour: "颜色浅", bloodTraces: "有血丝", oddSmell: "气味异常", oddClumping: "结块异常",
+                noVomit: "未发现呕吐物", foundVomit: "发现呕吐物",
+                unitServe: "份", unitPouch: "包", unitCan: "罐", unitStick: "根",
+                // —— 输入框提示文字 ——
+                emailPh: "请输入邮箱", passwordPh: "请输入密码", addressPh: "请输入客户地址", ownerNamePh: "请输入主人姓名",
+                petNamePh: "请输入宠物昵称", brandPh: "品牌", amountPh: "数量", notesPh: "如有特殊情况请备注",
+                minutesPh: "请输入分钟数", countPh: "几个", vomitNotesPh: "描述呕吐物情况", otherNotesPh: "其他需要告知主人的事项...",
+                // —— 页面上动态出现的文字 ——
+                logout: "退出登录", unknown: "未知", thisRecord: "这条记录",
+                photoReadFailed: "照片读取失败，请换一张试试", deleteFailed: "删除失败，请稍后再试",
+                notRecorded: "未记录", notFilled: "未填写", notChecked: "未检查",
+                poopLabel: "排便", urineLabel: "尿团", urineCountUnit: "个",
+                envDoor: "门窗", envUtilities: "水电", envClean: "清洁", envTrash: "垃圾",
                 appTitle: "上门喂养小助手",
                 appSubtitle: "记录每一次贴心的服务",
                 staffLogin: "服务人员登录",
@@ -1220,6 +1239,25 @@
                 copyFailed: "复制失败"
             },
             en: {
+                // —— Button labels (saved values stay Chinese; only the shown text changes) ——
+                finishedAll: "Finished all", mostlyEaten: "Ate most", ateALittle: "Ate a little", hardlyAte: "Barely ate",
+                ateWell: "Ate happily", normalEating: "Ate normally",
+                active: "Lively", normal: "Normal", quiet: "Quiet", abnormal: "Unwell",
+                soft: "Soft", diarrhea: "Diarrhoea", constipation: "Constipated", notFound: "None found",
+                large: "Large", small: "Small",
+                noAbnormal: "Normal", darkColour: "Dark", lightColour: "Pale", bloodTraces: "Blood traces", oddSmell: "Odd smell", oddClumping: "Odd clumping",
+                noVomit: "No vomit", foundVomit: "Vomit found",
+                unitServe: "serve", unitPouch: "pouch", unitCan: "can", unitStick: "stick",
+                // —— Input hints ——
+                emailPh: "Enter your email", passwordPh: "Enter your password", addressPh: "Client's address", ownerNamePh: "Owner's name",
+                petNamePh: "Pet's name", brandPh: "Brand", amountPh: "Qty", notesPh: "Anything unusual? Add a note",
+                minutesPh: "Minutes", countPh: "How many", vomitNotesPh: "Describe the vomit", otherNotesPh: "Anything else the owner should know...",
+                // —— Text created on the page ——
+                logout: "Log out", unknown: "Unknown", thisRecord: "this record",
+                photoReadFailed: "Couldn't read that photo, please try another one", deleteFailed: "Couldn't delete, please try again later",
+                notRecorded: "Not recorded", notFilled: "Not filled in", notChecked: "Not checked",
+                poopLabel: "Poop", urineLabel: "Urine clumps", urineCountUnit: "",
+                envDoor: "Doors", envUtilities: "Utilities", envClean: "Cleaned", envTrash: "Rubbish",
                 appTitle: "Pet Feeding Assistant",
                 appSubtitle: "Record every caring service",
                 staffLogin: "Staff Login",
@@ -1343,6 +1381,56 @@
                     el.textContent = translations[lang][key];
                 }
             });
+            // Choice buttons: only the shown text changes; data-value (what gets saved) stays Chinese
+            document.querySelectorAll('[data-i18n-value]').forEach(el => {
+                const text = translations[lang][el.dataset.i18nValue];
+                if (text) el.textContent = text;
+            });
+            // Hint text inside input boxes
+            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+                const text = translations[lang][el.dataset.i18nPh];
+                if (text) el.placeholder = text;
+            });
+            // Lists built from the database: rebuild them so their buttons/labels follow the language
+            const historyPage = document.getElementById('historyPage');
+            const templatePage = document.getElementById('templatePage');
+            if (historyPage && !historyPage.classList.contains('hidden')) loadHistory();
+            if (templatePage && !templatePage.classList.contains('hidden')) loadTemplates();
+        }
+
+        // Look up a word in the current language (falls back to Chinese)
+        function t(key) {
+            return translations[currentLang][key] || translations.zh[key] || key;
+        }
+
+        // Saved report values are always Chinese. On the owner's own screens, show them in English when in EN mode.
+        const VALUE_EN = {
+            '吃完了': 'Finished all', '吃了大部分': 'Ate most', '吃了一点': 'Ate a little', '没怎么吃': 'Barely ate',
+            '吃得很香': 'Ate happily', '正常进食': 'Ate normally',
+            '活泼好动': 'Lively', '正常': 'Normal', '比较安静': 'Quiet', '状态异常': 'Unwell',
+            '偏软': 'Soft', '拉稀': 'Diarrhoea', '便秘': 'Constipated', '未发现': 'None found',
+            '偏大': 'Large', '偏小': 'Small',
+            '无异常': 'Normal', '颜色深': 'Dark', '颜色浅': 'Pale', '有血丝': 'Blood traces', '气味异常': 'Odd smell', '结块异常': 'Odd clumping',
+            '未发现呕吐物': 'No vomit', '发现呕吐物': 'Vomit found',
+            '毛球': 'Hairball', '未消化的食物': 'Undigested food', '液体/泡沫': 'Liquid/foam', '其他': 'Other',
+            '干粮': 'Dry food', '湿粮': 'Wet food', '罐头': 'Canned food', '零食': 'Treats',
+            '份': ' serve', '包': ' pouch', '罐': ' can', '根': ' stick'
+        };
+        function tv(value) {
+            if (currentLang !== 'en' || !value) return value;
+            return VALUE_EN[value] || value;
+        }
+        // One food line for the owner's screens, e.g. "Dry food (Purina) 20g"
+        function feedingLines(data) {
+            if (currentLang === 'en' && Array.isArray(data.feedingItems)) {
+                return data.feedingItems.map(it => {
+                    let s = tv(it.type);
+                    if (it.brand) s += ` (${it.brand})`;
+                    if (it.amount) s += ` ${it.amount}${it.unit === 'g' ? 'g' : tv(it.unit)}`;
+                    return s;
+                });
+            }
+            return data.feedingTypes || [];
         }
 
         // ==================== 登录 ====================
@@ -1423,7 +1511,7 @@
                     photos[photoKey] = dataUrl;
                     document.getElementById(photoId).src = dataUrl;
                     document.getElementById(previewId).classList.remove('hidden');
-                }).catch(function() { alert('照片读取失败，请换一张试试'); });
+                }).catch(function() { alert(t('photoReadFailed')); });
             };
             document.getElementById(inputId).addEventListener('change', function(e) {
                 const file = e.target.files[0];
@@ -1543,8 +1631,8 @@
                     card.innerHTML = `
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="font-medium text-gray-800">${data.petNames ? data.petNames.join('、') : '未知'}</p>
-                                <p class="text-sm text-gray-500 flex items-center gap-1">${SSIcons.person(data.ownerGender, 18)}${data.ownerName || '未知'}</p>
+                                <p class="font-medium text-gray-800">${data.petNames ? data.petNames.join('、') : t('unknown')}</p>
+                                <p class="text-sm text-gray-500 flex items-center gap-1">${SSIcons.person(data.ownerGender, 18)}${data.ownerName || t('unknown')}</p>
                             </div>
                             <div class="text-right">
                                 <p class="text-sm text-gray-600">${dateStr}</p>
@@ -1553,7 +1641,7 @@
                         </div>
                         <div class="flex justify-between items-center mt-2 gap-2">
                             <p class="text-xs text-gray-400 truncate">${data.customerAddress || ''}</p>
-                            <button type="button" class="history-del text-xs text-red-500 border border-red-300 rounded-lg px-2 py-1 shrink-0">删除</button>
+                            <button type="button" class="history-del text-xs text-red-500 border border-red-300 rounded-lg px-2 py-1 shrink-0">${t('delete')}</button>
                         </div>
                     `;
                     card.onclick = () => {
@@ -1561,14 +1649,17 @@
                     };
                     card.querySelector('.history-del').onclick = async (e) => {
                         e.stopPropagation();
-                        const name = data.petNames ? data.petNames.join('、') : '这条记录';
-                        if (!confirm(`确定要删除「${name}」${dateStr} 的记录吗？删除后客户的链接也会失效，无法恢复。`)) return;
+                        const name = data.petNames ? data.petNames.join('、') : t('thisRecord');
+                        const question = currentLang === 'en'
+                            ? `Delete the record for "${name}" on ${dateStr}? The client's link will stop working and this can't be undone.`
+                            : `确定要删除「${name}」${dateStr} 的记录吗？删除后客户的链接也会失效，无法恢复。`;
+                        if (!confirm(question)) return;
                         try {
                             await db.collection('reports').doc(doc.id).delete();
                             card.remove();
                             if (!listEl.children.length) emptyEl.classList.remove('hidden');
                         } catch (err) {
-                            alert('删除失败，请稍后再试');
+                            alert(t('deleteFailed'));
                         }
                     };
                     listEl.appendChild(card);
@@ -1611,8 +1702,8 @@
                     card.innerHTML = `
                         <div class="flex justify-between items-start mb-2">
                             <div>
-                                <p class="font-medium text-gray-800">${data.petNames ? data.petNames.join('、') : '未知'}</p>
-                                <p class="text-sm text-gray-500 flex items-center gap-1">${SSIcons.person(data.ownerGender, 18)}${data.ownerName || '未知'}</p>
+                                <p class="font-medium text-gray-800">${data.petNames ? data.petNames.join('、') : t('unknown')}</p>
+                                <p class="text-sm text-gray-500 flex items-center gap-1">${SSIcons.person(data.ownerGender, 18)}${data.ownerName || t('unknown')}</p>
                             </div>
                         </div>
                         <p class="text-xs text-gray-400 mb-3 truncate">${data.customerAddress || ''}</p>
@@ -1653,7 +1744,7 @@
                             group.className = 'pet-input-group mb-2';
                             group.innerHTML = `
                                 <div class="pet-input-wrapper">
-                                    <input type="text" name="petName" placeholder="请输入宠物昵称" required value="${name}"
+                                    <input type="text" name="petName" placeholder="${t('petNamePh')}" data-i18n-ph="petNamePh" required value="${name}"
                                         class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
                                 </div>
                                 ${index > 0 ? '<button type="button" class="remove-pet-btn px-3 py-3 rounded-xl bg-red-100 text-red-500 hover:bg-red-200 transition-all">✕</button>' : ''}
@@ -1668,7 +1759,7 @@
                         container.innerHTML = `
                             <div class="pet-input-group mb-2">
                                 <div class="pet-input-wrapper">
-                                    <input type="text" name="petName" placeholder="请输入宠物昵称" required
+                                    <input type="text" name="petName" placeholder="${t('petNamePh')}" data-i18n-ph="petNamePh" required
                                         class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
                                 </div>
                             </div>
@@ -1784,7 +1875,7 @@
                     document.getElementById('photoPreview').src = photos.main;
                     document.getElementById('photoPreviewContainer').classList.remove('hidden');
                     document.getElementById('uploadPhotoBtn').innerHTML = albumBtnHtml('changePhoto');
-                }).catch(function() { alert('照片读取失败，请换一张试试'); });
+                }).catch(function() { alert(t('photoReadFailed')); });
             };
             document.getElementById('photoInput').addEventListener('change', function(e) {
                 const file = e.target.files[0];
@@ -1804,7 +1895,7 @@
                 newGroup.className = 'pet-input-group mb-2';
                 newGroup.innerHTML = `
                     <div class="pet-input-wrapper">
-                        <input type="text" name="petName" placeholder="请输入宠物昵称" required
+                        <input type="text" name="petName" placeholder="${t('petNamePh')}" data-i18n-ph="petNamePh" required
                             class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
                     </div>
                     <button type="button" class="remove-pet-btn px-3 py-3 rounded-xl bg-red-100 text-red-500 hover:bg-red-200 transition-all">
@@ -1952,28 +2043,31 @@
                     const dateObj = new Date(formData.date);
                     document.getElementById('reportDateTime').textContent = `${dateObj.getFullYear()}/${dateObj.getMonth() + 1}/${dateObj.getDate()} ${timeStr}`;
                     
-                    document.getElementById('reportMood').textContent = formData.moodStatus || '未记录';
-                    
+                    document.getElementById('reportMood').textContent = tv(formData.moodStatus) || t('notRecorded');
+
+                    const listSep = currentLang === 'en' ? ', ' : '、';
+                    const colon = currentLang === 'en' ? ': ' : '：';
                     let feedingParts = [];
-                    if (formData.feedingTypes.length > 0) feedingParts.push(formData.feedingTypes.join('、'));
-                    if (formData.eatingDuring) feedingParts.push(formData.eatingDuring);
-                    if (formData.waterChanged) feedingParts.push('已换水');
-                    document.getElementById('reportFeeding').textContent = feedingParts.join(' | ') || '未填写';
-                    
+                    const foodLines = feedingLines(formData);
+                    if (foodLines.length > 0) feedingParts.push(foodLines.join(listSep));
+                    if (formData.eatingDuring) feedingParts.push(tv(formData.eatingDuring));
+                    if (formData.waterChanged) feedingParts.push(t('waterChanged'));
+                    document.getElementById('reportFeeding').textContent = feedingParts.join(' | ') || t('notFilled');
+
                     let cleaningParts = [];
-                    if (formData.poopStatus) cleaningParts.push(`排便：${formData.poopStatus}`);
-                    if (formData.urineCount) cleaningParts.push(`尿团：${formData.urineCount}个`);
-                    document.getElementById('reportCleaning').textContent = cleaningParts.join(' | ') || '未填写';
-                    
+                    if (formData.poopStatus) cleaningParts.push(t('poopLabel') + colon + tv(formData.poopStatus));
+                    if (formData.urineCount) cleaningParts.push(t('urineLabel') + colon + formData.urineCount + t('urineCountUnit'));
+                    document.getElementById('reportCleaning').textContent = cleaningParts.join(' | ') || t('notFilled');
+
                     let envParts = [];
-                    if (formData.doorWindowChecked) envParts.push('门窗✓');
-                    if (formData.utilitiesChecked) envParts.push('水电✓');
-                    if (formData.surroundingCleaned) envParts.push('清洁✓');
-                    if (formData.trashHandled) envParts.push('垃圾✓');
-                    document.getElementById('reportEnvironment').textContent = envParts.join(' | ') || '未检查';
+                    if (formData.doorWindowChecked) envParts.push(t('envDoor') + '✓');
+                    if (formData.utilitiesChecked) envParts.push(t('envUtilities') + '✓');
+                    if (formData.surroundingCleaned) envParts.push(t('envClean') + '✓');
+                    if (formData.trashHandled) envParts.push(t('envTrash') + '✓');
+                    document.getElementById('reportEnvironment').textContent = envParts.join(' | ') || t('notChecked');
 
                     if (formData.vomitStatus === '发现呕吐物') {
-                        document.getElementById('reportVomit').textContent = '发现呕吐物';
+                        document.getElementById('reportVomit').textContent = tv('发现呕吐物');
                         document.getElementById('reportVomitContainer').classList.remove('hidden');
                     } else {
                         document.getElementById('reportVomitContainer').classList.add('hidden');
@@ -2038,12 +2132,14 @@
                 text += `🐾 ${data.petNames.join('、')}\n`;
                 text += `📅 ${dateObj.getFullYear()}/${dateObj.getMonth() + 1}/${dateObj.getDate()} ${timeStr}\n\n`;
                 
-                text += `😺 ${translations[currentLang].petStatus}: ${data.moodStatus || '-'}\n`;
-                if (data.feedingTypes.length > 0) text += `🍽️ ${translations[currentLang].feeding}: ${data.feedingTypes.join('、')}\n`;
+                const sep = currentLang === 'en' ? ', ' : '、';
+                text += `😺 ${translations[currentLang].petStatus}: ${tv(data.moodStatus) || '-'}\n`;
+                const foods = feedingLines(data);
+                if (foods.length > 0) text += `🍽️ ${translations[currentLang].feeding}: ${foods.join(sep)}\n`;
                 if (data.feedingAmount) text += `   ${data.feedingAmount}${data.feedingUnit || ''}\n`;
                 if (data.waterChanged) text += `💧 ${translations[currentLang].waterChanged} ✓\n`;
-                if (data.poopStatus) text += `💩 ${data.poopStatus}\n`;
-                if (data.urineCount) text += `   尿团: ${data.urineCount}个\n`;
+                if (data.poopStatus) text += `💩 ${tv(data.poopStatus)}\n`;
+                if (data.urineCount) text += `   ${t('urineLabel')}: ${data.urineCount}${t('urineCountUnit')}\n`;
                 if (data.doorWindowChecked) text += `🏠 ${translations[currentLang].doorWindowChecked} ✓\n`;
                 if (data.notes) text += `\n📝 ${data.notes}`;
                 
@@ -2083,7 +2179,7 @@
                     container.innerHTML = `
                         <div class="pet-input-group mb-2">
                             <div class="pet-input-wrapper">
-                                <input type="text" name="petName" placeholder="请输入宠物昵称" required
+                                <input type="text" name="petName" placeholder="${t('petNamePh')}" data-i18n-ph="petNamePh" required
                                     class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
                             </div>
                         </div>
