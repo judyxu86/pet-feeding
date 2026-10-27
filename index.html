@@ -202,6 +202,28 @@
             border-radius: 0.75rem;
         }
         /* 照片按钮：每处都是一样的两个按钮（拍照 + 相册），同宽同高 */
+        /* "现在到达 / 现在离开" buttons under the time boxes (use the phone's clock, no internet needed) */
+        .time-now-btn {
+            margin-top: 0.4rem;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3rem;
+            padding: 0.4rem 0.3rem;
+            border-radius: 10px;
+            border: 1.5px solid #e9d5ff;
+            background: #faf5ff;
+            color: #7e22ce;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: transform 0.15s, background 0.2s;
+        }
+        .time-now-btn:active { transform: scale(0.97); }
+        .time-now-btn.recorded {
+            background: #f3e8ff;
+            border-color: #c084fc;
+        }
         /* Sill & Sun logo tile next to page titles */
         .brand-logo {
             border-radius: 12px;
@@ -462,11 +484,17 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="startTime">开始时间</label>
                                 <input type="time" id="serviceStartTime" required
                                     class="w-full px-3 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                                <button type="button" id="arriveNowBtn" class="time-now-btn">
+                                    <span data-ss-icon="clock" data-size="16"></span><span data-i18n="arrivedNow">现在到达</span>
+                                </button>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="endTime">结束时间</label>
                                 <input type="time" id="serviceEndTime"
                                     class="w-full px-3 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                                <button type="button" id="leaveNowBtn" class="time-now-btn">
+                                    <span data-ss-icon="clock" data-size="16"></span><span data-i18n="leavingNow">现在离开</span>
+                                </button>
                             </div>
                         </div>
                         <div>
@@ -1126,6 +1154,7 @@
                 petNamePh: "请输入宠物昵称", brandPh: "品牌", amountPh: "数量", notesPh: "如有特殊情况请备注",
                 minutesPh: "请输入分钟数", countPh: "几个", vomitNotesPh: "描述呕吐物情况", otherNotesPh: "其他需要告知主人的事项...",
                 // —— 页面上动态出现的文字 ——
+                arrivedNow: "现在到达", leavingNow: "现在离开",
                 logout: "退出登录", unknown: "未知", thisRecord: "这条记录",
                 photoReadFailed: "照片读取失败，请换一张试试", deleteFailed: "删除失败，请稍后再试",
                 notRecorded: "未记录", notFilled: "未填写", notChecked: "未检查",
@@ -1253,6 +1282,7 @@
                 petNamePh: "Pet's name", brandPh: "Brand", amountPh: "Qty", notesPh: "Anything unusual? Add a note",
                 minutesPh: "Minutes", countPh: "How many", vomitNotesPh: "Describe the vomit", otherNotesPh: "Anything else the owner should know...",
                 // —— Text created on the page ——
+                arrivedNow: "Arrived now", leavingNow: "Leaving now",
                 logout: "Log out", unknown: "Unknown", thisRecord: "this record",
                 photoReadFailed: "Couldn't read that photo, please try another one", deleteFailed: "Couldn't delete, please try again later",
                 notRecorded: "Not recorded", notFilled: "Not filled in", notChecked: "Not checked",
@@ -1397,6 +1427,18 @@
             if (historyPage && !historyPage.classList.contains('hidden')) loadHistory();
             if (templatePage && !templatePage.classList.contains('hidden')) loadTemplates();
         }
+
+        // Today's date / current time from the phone's own clock (local time, no internet needed)
+        function localDateStr() {
+            const d = new Date();
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        }
+        function localTimeStr() {
+            const d = new Date();
+            return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+        }
+        // Whether the start / end time came from the 现在到达 / 现在离开 buttons
+        let timeAuto = { start: false, end: false };
 
         // Look up a word in the current language (falls back to Chinese)
         function t(key) {
@@ -1851,11 +1893,31 @@
             switchLanguage(currentLang);
 
             // 设置默认日期时间
-            document.getElementById('serviceDate').valueAsDate = new Date();
-            const now = new Date();
-            document.getElementById('serviceStartTime').value = 
-                now.getHours().toString().padStart(2, '0') + ':' + 
-                now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('serviceDate').value = localDateStr();
+            document.getElementById('serviceStartTime').value = localTimeStr();
+
+            // 现在到达 / 现在离开: fill in the time from the phone's clock (works without internet).
+            // Times set this way are marked "recorded on the spot" on the client's report,
+            // unless they are typed over afterwards.
+            document.getElementById('arriveNowBtn').addEventListener('click', function() {
+                document.getElementById('serviceDate').value = localDateStr();
+                document.getElementById('serviceStartTime').value = localTimeStr();
+                timeAuto.start = true;
+                this.classList.add('recorded');
+            });
+            document.getElementById('leaveNowBtn').addEventListener('click', function() {
+                document.getElementById('serviceEndTime').value = localTimeStr();
+                timeAuto.end = true;
+                this.classList.add('recorded');
+            });
+            document.getElementById('serviceStartTime').addEventListener('input', function() {
+                timeAuto.start = false;
+                document.getElementById('arriveNowBtn').classList.remove('recorded');
+            });
+            document.getElementById('serviceEndTime').addEventListener('input', function() {
+                timeAuto.end = false;
+                document.getElementById('leaveNowBtn').classList.remove('recorded');
+            });
 
             // 设置照片输入
             setupPhotoInput('eatingBeforePhotoInput', 'eatingBeforePhotoPreview', 'eatingBeforePhoto', 'eatingBefore');
@@ -1957,6 +2019,8 @@
                     date: document.getElementById('serviceDate').value,
                     startTime: document.getElementById('serviceStartTime').value,
                     endTime: document.getElementById('serviceEndTime').value,
+                    startTimeAuto: timeAuto.start && !!document.getElementById('serviceStartTime').value,
+                    endTimeAuto: timeAuto.end && !!document.getElementById('serviceEndTime').value,
                     customerAddress: document.getElementById('customerAddress').value,
                     ownerName: document.getElementById('ownerName').value,
                     ownerGender: getToggleValue('ownerGender'),
@@ -2169,11 +2233,11 @@
             document.getElementById('newReportBtn').addEventListener('click', function() {
                 if (confirm(translations[currentLang].confirmNewReport)) {
                     document.getElementById('feedingForm').reset();
-                    document.getElementById('serviceDate').valueAsDate = new Date();
-                    const now = new Date();
-                    document.getElementById('serviceStartTime').value = 
-                        now.getHours().toString().padStart(2, '0') + ':' + 
-                        now.getMinutes().toString().padStart(2, '0');
+                    document.getElementById('serviceDate').value = localDateStr();
+                    document.getElementById('serviceStartTime').value = localTimeStr();
+                    timeAuto = { start: false, end: false };
+                    document.getElementById('arriveNowBtn').classList.remove('recorded');
+                    document.getElementById('leaveNowBtn').classList.remove('recorded');
                     
                     const container = document.getElementById('petNamesContainer');
                     container.innerHTML = `

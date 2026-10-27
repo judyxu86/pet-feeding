@@ -223,6 +223,7 @@
             <div class="mb-4">
                 <p class="text-sm text-gray-500" data-t="serviceTime">服务时间</p>
                 <p class="text-lg font-medium text-gray-800" id="reportDateTime"></p>
+                <p class="text-xs text-green-700 mt-1 hidden" id="timeAutoNote"></p>
             </div>
             <div class="bg-white/50 rounded-xl p-3">
                 <div class="flex items-center text-sm">
@@ -461,7 +462,8 @@
                 surrounding: '周边清洁/补砂', surroundingNo: '周边未清洁', trash: '垃圾已处理', trashNo: '垃圾未处理',
                 notRecorded: '未记录', good: '状态良好', watch: '需关注', alert: '需注意',
                 bowlYes: '已清洗 ✓', bowlNo: '未清洗', waterYes: '已换水 ✓', waterNo: '未换水',
-                withHair: ' (有毛发)'
+                withHair: ' (有毛发)',
+                autoBoth: '✓ 到达和离开时间为现场记录', autoStart: '✓ 到达时间为现场记录', autoEnd: '✓ 离开时间为现场记录'
             },
             en: {
                 backToHistory: '← Back to history', loading: 'Loading report...',
@@ -477,7 +479,8 @@
                 surrounding: 'Area cleaned & litter topped up', surroundingNo: 'Area not cleaned', trash: 'Rubbish taken out', trashNo: 'Rubbish not taken out',
                 notRecorded: 'Not recorded', good: 'Doing well', watch: 'Keep an eye on', alert: 'Needs attention',
                 bowlYes: 'Washed ✓', bowlNo: 'Not washed', waterYes: 'Refreshed ✓', waterNo: 'Not changed',
-                withHair: ' (with hair)'
+                withHair: ' (with hair)',
+                autoBoth: '✓ Arrival and leaving times recorded on the spot', autoStart: '✓ Arrival time recorded on the spot', autoEnd: '✓ Leaving time recorded on the spot'
             }
         };
 
@@ -541,6 +544,14 @@
                 ? dateObj.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
                 : `${dateObj.getMonth() + 1}月${dateObj.getDate()}日`;
             document.getElementById('reportDateTime').textContent = `${dayStr} ${timeStr}`;
+
+            // Times set with the 现在到达 / 现在离开 buttons (phone clock, not typed)
+            const autoNote = document.getElementById('timeAutoNote');
+            const autoKey = data.startTimeAuto && data.endTimeAuto ? 'autoBoth'
+                : data.startTimeAuto ? 'autoStart'
+                : data.endTimeAuto ? 'autoEnd' : '';
+            autoNote.textContent = autoKey ? L(autoKey) : '';
+            autoNote.classList.toggle('hidden', !autoKey);
 
             // 照片
             if (data.photo) {
