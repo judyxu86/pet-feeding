@@ -459,11 +459,22 @@
             <div id="templateHint" class="bg-purple-50 border border-purple-200 rounded-xl p-3 mb-4 hidden">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
-                        <span class="mr-2">📋</span>
+                        <span class="mr-2 flex-shrink-0" data-ss-icon="clientCard" data-size="20"></span>
                         <span class="text-sm text-purple-700" data-i18n="usingTemplate">已填入客户：</span>
                         <span id="currentTemplateName" class="text-sm font-medium text-purple-800"></span>
                     </div>
                     <button onclick="clearTemplate()" class="text-purple-600 text-sm" data-i18n="clear">清除</button>
+                </div>
+            </div>
+
+            <!-- 草稿恢复提示：上次没提交的内容已从手机里找回 -->
+            <div id="draftBanner" class="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4 hidden">
+                <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center min-w-0">
+                        <span class="mr-2 flex-shrink-0" data-ss-icon="memo" data-size="20"></span>
+                        <span id="draftBannerText" class="text-sm text-amber-800"></span>
+                    </div>
+                    <button type="button" id="draftDiscardBtn" class="text-amber-700 text-sm underline flex-shrink-0" data-i18n="draftDiscard">清空重填</button>
                 </div>
             </div>
 
@@ -1155,6 +1166,10 @@
                 minutesPh: "请输入分钟数", countPh: "几个", vomitNotesPh: "描述呕吐物情况", otherNotesPh: "其他需要告知主人的事项...",
                 // —— 页面上动态出现的文字 ——
                 arrivedNow: "现在到达", leavingNow: "现在离开",
+                draftRestored: "已找回上次没提交的内容（{time} 保存）", draftDiscard: "清空重填", confirmDiscard: "确定清空这份没提交的报告，重新填写吗？",
+                offlineSaved: "现在没有网络，报告还没存上。别担心：所有内容都保存在手机上了，有信号后再点一次「生成报告」就行。",
+                slowSaved: "网络太慢，报告还没存上。别担心：所有内容都保存在手机上了，有信号后再点一次「生成报告」就行。",
+                savedOnPhone: "内容仍保存在手机上，可以稍后再试。",
                 logout: "退出登录", unknown: "未知", thisRecord: "这条记录",
                 photoReadFailed: "照片读取失败，请换一张试试", deleteFailed: "删除失败，请稍后再试",
                 notRecorded: "未记录", notFilled: "未填写", notChecked: "未检查",
@@ -1283,6 +1298,10 @@
                 minutesPh: "Minutes", countPh: "How many", vomitNotesPh: "Describe the vomit", otherNotesPh: "Anything else the owner should know...",
                 // —— Text created on the page ——
                 arrivedNow: "Arrived now", leavingNow: "Leaving now",
+                draftRestored: "Your unsent report is back (saved {time})", draftDiscard: "Start over", confirmDiscard: "Clear this unsent report and start over?",
+                offlineSaved: "No internet right now, so the report isn't saved yet. Don't worry: everything is kept on your phone. Tap Generate Report again when you have signal.",
+                slowSaved: "The connection is too slow, so the report isn't saved yet. Don't worry: everything is kept on your phone. Tap Generate Report again when you have signal.",
+                savedOnPhone: "Everything is still kept on your phone, so you can try again later.",
                 logout: "Log out", unknown: "Unknown", thisRecord: "this record",
                 photoReadFailed: "Couldn't read that photo, please try another one", deleteFailed: "Couldn't delete, please try again later",
                 notRecorded: "Not recorded", notFilled: "Not filled in", notChecked: "Not checked",
@@ -1553,6 +1572,7 @@
                     photos[photoKey] = dataUrl;
                     document.getElementById(photoId).src = dataUrl;
                     document.getElementById(previewId).classList.remove('hidden');
+                    saveDraftPhotos();
                 }).catch(function() { alert(t('photoReadFailed')); });
             };
             document.getElementById(inputId).addEventListener('change', function(e) {
@@ -1614,6 +1634,151 @@
                 document.getElementById(photoKey + 'PhotoPreview').classList.add('hidden');
                 document.getElementById(photoKey + 'PhotoInput').value = '';
             }
+            saveDraftPhotos();
+        }
+
+        // ==================== 草稿：没提交的报告保存在手机上 ====================
+        // Everything typed (and the photos) is kept in this phone's storage while filling in,
+        // so a reload, a closed app or a lost connection never loses a report.
+        // It's cleared once the report is saved to the database, or on 新建报告 / 清空重填.
+        const DRAFT_KEY = 'ssDraftV1';
+        const DRAFT_PHOTOS_KEY = 'ssDraftPhotosV1';
+        let draftTimer = null;
+        let restoringDraft = false;
+        // ID for the report being saved. Kept in the draft, so tapping 生成报告 again after a
+        // failed / slow attempt re-uses it and can never create the same report twice.
+        let pendingReportId = null;
+
+        function collectDraft() {
+            const form = document.getElementById('feedingForm');
+            const fields = {};
+            form.querySelectorAll('input, select, textarea').forEach(el => {
+                if (!el.id || el.type === 'file') return;
+                fields[el.id] = el.type === 'checkbox' ? el.checked : el.value;
+            });
+            const toggles = {};
+            form.querySelectorAll('.toggle-btn.active').forEach(b => { toggles[b.dataset.group] = b.dataset.value; });
+            const petNames = Array.from(form.querySelectorAll('input[name="petName"]')).map(i => i.value);
+            return { savedAt: Date.now(), fields, toggles, petNames, timeAuto, pendingReportId };
+        }
+
+        function saveDraftNow() {
+            if (restoringDraft) return;
+            try { localStorage.setItem(DRAFT_KEY, JSON.stringify(collectDraft())); } catch (e) {}
+        }
+        function saveDraftSoon() {
+            if (restoringDraft) return;
+            clearTimeout(draftTimer);
+            draftTimer = setTimeout(saveDraftNow, 400);
+        }
+        function saveDraftPhotos() {
+            if (restoringDraft) return;
+            try {
+                localStorage.setItem(DRAFT_PHOTOS_KEY, JSON.stringify(photos));
+            } catch (e) {
+                // Phone storage full: keep the typed text at least
+                try { localStorage.removeItem(DRAFT_PHOTOS_KEY); } catch (e2) {}
+            }
+            saveDraftNow();
+        }
+        function clearDraft() {
+            clearTimeout(draftTimer);
+            try { localStorage.removeItem(DRAFT_KEY); localStorage.removeItem(DRAFT_PHOTOS_KEY); } catch (e) {}
+            pendingReportId = null;
+            document.getElementById('draftBanner').classList.add('hidden');
+        }
+
+        function renderPetInputs(names) {
+            const container = document.getElementById('petNamesContainer');
+            container.innerHTML = '';
+            (names.length ? names : ['']).forEach((name, index) => {
+                const group = document.createElement('div');
+                group.className = 'pet-input-group mb-2';
+                group.innerHTML = `
+                    <div class="pet-input-wrapper">
+                        <input type="text" name="petName" placeholder="${t('petNamePh')}" data-i18n-ph="petNamePh" required
+                            class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
+                    </div>
+                    ${index > 0 ? '<button type="button" class="remove-pet-btn px-3 py-3 rounded-xl bg-red-100 text-red-500 hover:bg-red-200 transition-all">✕</button>' : ''}
+                `;
+                group.querySelector('input').value = name;
+                container.appendChild(group);
+                if (index > 0) {
+                    group.querySelector('.remove-pet-btn').addEventListener('click', () => { group.remove(); saveDraftSoon(); });
+                }
+            });
+        }
+
+        function showRestoredPhoto(key, dataUrl) {
+            photos[key] = dataUrl;
+            if (key === 'main') {
+                document.getElementById('photoPreview').src = dataUrl;
+                document.getElementById('photoPreviewContainer').classList.remove('hidden');
+                document.getElementById('uploadPhotoBtn').innerHTML = albumBtnHtml('changePhoto');
+            } else {
+                document.getElementById(key + 'Photo').src = dataUrl;
+                document.getElementById(key + 'PhotoPreview').classList.remove('hidden');
+            }
+        }
+
+        function restoreDraft() {
+            let d = null;
+            try { d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch (e) {}
+            if (!d || !d.fields) return;
+            restoringDraft = true;
+            try {
+                renderPetInputs(d.petNames || []);
+                Object.entries(d.fields).forEach(([id, value]) => {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    if (el.type === 'checkbox') el.checked = !!value; else el.value = value;
+                });
+                const toggles = d.toggles || {};
+                document.querySelectorAll('#feedingForm .toggle-btn').forEach(b => {
+                    b.classList.toggle('active', toggles[b.dataset.group] === b.dataset.value);
+                });
+                document.getElementById('vomitDetails').classList.toggle('hidden', toggles.vomit !== '发现呕吐物');
+                document.getElementById('playDurationContainer').classList.toggle('hidden', !document.getElementById('playInteraction').checked);
+                timeAuto = d.timeAuto || { start: false, end: false };
+                document.getElementById('arriveNowBtn').classList.toggle('recorded', !!timeAuto.start);
+                document.getElementById('leaveNowBtn').classList.toggle('recorded', !!timeAuto.end);
+                pendingReportId = d.pendingReportId || null;
+                let savedPhotos = null;
+                try { savedPhotos = JSON.parse(localStorage.getItem(DRAFT_PHOTOS_KEY) || 'null'); } catch (e) {}
+                if (savedPhotos) Object.keys(photos).forEach(k => { if (savedPhotos[k]) showRestoredPhoto(k, savedPhotos[k]); });
+            } finally {
+                restoringDraft = false;
+            }
+            const when = new Date(d.savedAt || Date.now());
+            const hhmm = String(when.getHours()).padStart(2, '0') + ':' + String(when.getMinutes()).padStart(2, '0');
+            document.getElementById('draftBannerText').textContent = t('draftRestored').replace('{time}', hhmm);
+            document.getElementById('draftBanner').classList.remove('hidden');
+        }
+
+        // Empty the whole form for a new report (also used by 清空重填)
+        function resetFormFields() {
+            document.getElementById('feedingForm').reset();
+            document.getElementById('serviceDate').value = localDateStr();
+            document.getElementById('serviceStartTime').value = localTimeStr();
+            timeAuto = { start: false, end: false };
+            document.getElementById('arriveNowBtn').classList.remove('recorded');
+            document.getElementById('leaveNowBtn').classList.remove('recorded');
+            renderPetInputs([]);
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            photos = { main: null, eatingBefore: null, eatingDuring: null, water: null, waste: null, vomit: null };
+            ['vomitPhotoPreview', 'photoPreviewContainer', 'eatingBeforePhotoPreview', 'eatingDuringPhotoPreview',
+             'waterPhotoPreview', 'wastePhotoPreview', 'vomitDetails', 'playDurationContainer', 'templateHint']
+                .forEach(id => document.getElementById(id).classList.add('hidden'));
+            document.getElementById('uploadPhotoBtn').innerHTML = albumBtnHtml('fromAlbum');
+            currentTemplate = null;
+        }
+
+        // Stop waiting after `ms` (a weak signal can otherwise leave the spinner forever)
+        function withTimeout(promise, ms) {
+            return Promise.race([
+                promise,
+                new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))
+            ]);
         }
 
         // ==================== 页面切换 ====================
@@ -1936,6 +2101,7 @@
                     photos.main = dataUrl;
                     document.getElementById('photoPreview').src = photos.main;
                     document.getElementById('photoPreviewContainer').classList.remove('hidden');
+                    saveDraftPhotos();
                     document.getElementById('uploadPhotoBtn').innerHTML = albumBtnHtml('changePhoto');
                 }).catch(function() { alert(t('photoReadFailed')); });
             };
@@ -2070,20 +2236,49 @@
                     return;
                 }
 
+                // 没网：不用干等，直接告诉她内容都在手机上
+                if (!navigator.onLine) {
+                    hideLoading();
+                    saveDraftNow();
+                    alert(t('offlineSaved'));
+                    return;
+                }
+
+                // The report's ID is chosen on the phone first and kept in the draft, so if this
+                // attempt is slow or fails and she taps again, the same report is updated, never doubled.
+                const isRetry = !!pendingReportId;
+                if (!pendingReportId) pendingReportId = db.collection('reports').doc().id;
+                saveDraftNow();
+
                 try {
                     // 保存报告
-                    const docRef = await db.collection('reports').add(formData);
-                    const reportId = docRef.id;
+                    const reportId = pendingReportId;
+                    const reportRef = db.collection('reports').doc(reportId);
+                    await withTimeout((async () => {
+                        if (isRetry) {
+                            const existing = await reportRef.get();
+                            if (existing.exists) return;   // an earlier, slow attempt already saved it
+                        }
+                        await reportRef.set(formData);
+                    })(), 45000);
+
+                    // Saved to the database: the copy on the phone is no longer needed
+                    clearDraft();
 
                     // 保存模板
+                    // (the report is already saved; a problem here must not make her submit the report again)
                     if (document.getElementById('saveAsTemplate').checked) {
-                        await db.collection('templates').add({
-                            customerAddress: formData.customerAddress,
-                            ownerName: formData.ownerName,
-                            ownerGender: formData.ownerGender,
-                            petNames: formData.petNames,
-                            createdAt: new Date().toISOString()
-                        });
+                        try {
+                            await withTimeout(db.collection('templates').add({
+                                customerAddress: formData.customerAddress,
+                                ownerName: formData.ownerName,
+                                ownerGender: formData.ownerGender,
+                                petNames: formData.petNames,
+                                createdAt: new Date().toISOString()
+                            }), 20000);
+                        } catch (templateError) {
+                            console.error('保存常用客户失败:', templateError);
+                        }
                     }
 
                     // 生成分享链接
@@ -2160,11 +2355,32 @@
 
                 } catch (error) {
                     console.error('保存失败:', error);
-                    alert(translations[currentLang].saveFailed + ': ' + error.message);
+                    saveDraftNow();
+                    const weakSignal = error.message === 'timeout' || error.code === 'unavailable' || !navigator.onLine;
+                    if (weakSignal) {
+                        alert(t('slowSaved'));
+                    } else {
+                        alert(translations[currentLang].saveFailed + ': ' + error.message + '\n' + t('savedOnPhone'));
+                    }
                 } finally {
                     hideLoading();
                 }
             });
+
+            // 草稿：一边填写一边保存到手机上
+            const feedingForm = document.getElementById('feedingForm');
+            feedingForm.addEventListener('input', saveDraftSoon);
+            feedingForm.addEventListener('change', saveDraftSoon);
+            feedingForm.addEventListener('click', function(e) {
+                if (e.target.closest('.toggle-btn, .time-now-btn, .remove-pet-btn, #addPetBtn')) saveDraftSoon();
+            });
+            document.getElementById('draftDiscardBtn').addEventListener('click', function() {
+                if (!confirm(t('confirmDiscard'))) return;
+                resetFormFields();
+                clearDraft();
+                window.scrollTo(0, 0);
+            });
+            restoreDraft();
 
             // 复制链接
             document.getElementById('copyLinkBtn').addEventListener('click', function() {
@@ -2232,38 +2448,9 @@
             // 新建报告
             document.getElementById('newReportBtn').addEventListener('click', function() {
                 if (confirm(translations[currentLang].confirmNewReport)) {
-                    document.getElementById('feedingForm').reset();
-                    document.getElementById('serviceDate').value = localDateStr();
-                    document.getElementById('serviceStartTime').value = localTimeStr();
-                    timeAuto = { start: false, end: false };
-                    document.getElementById('arriveNowBtn').classList.remove('recorded');
-                    document.getElementById('leaveNowBtn').classList.remove('recorded');
-                    
-                    const container = document.getElementById('petNamesContainer');
-                    container.innerHTML = `
-                        <div class="pet-input-group mb-2">
-                            <div class="pet-input-wrapper">
-                                <input type="text" name="petName" placeholder="${t('petNamePh')}" data-i18n-ph="petNamePh" required
-                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 input-focus text-gray-800 bg-white">
-                            </div>
-                        </div>
-                    `;
-                    
-                    document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
-                    
-                    photos = { main: null, eatingBefore: null, eatingDuring: null, water: null, waste: null, vomit: null };
-                    document.getElementById('vomitPhotoPreview').classList.add('hidden');
-                    document.getElementById('photoPreviewContainer').classList.add('hidden');
-                    document.getElementById('eatingBeforePhotoPreview').classList.add('hidden');
-                    document.getElementById('eatingDuringPhotoPreview').classList.add('hidden');
-                    document.getElementById('waterPhotoPreview').classList.add('hidden');
-                    document.getElementById('wastePhotoPreview').classList.add('hidden');
-                    
-                    document.getElementById('vomitDetails').classList.add('hidden');
-                    document.getElementById('playDurationContainer').classList.add('hidden');
-                    document.getElementById('templateHint').classList.add('hidden');
-                    currentTemplate = null;
-                    
+                    resetFormFields();
+                    clearDraft();
+
                     document.getElementById('formPage').classList.remove('hidden');
                     document.getElementById('reportPage').classList.add('hidden');
                     window.scrollTo(0, 0);
